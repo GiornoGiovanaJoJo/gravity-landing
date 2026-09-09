@@ -1,0 +1,7 @@
+# Репозиторий ведётся с Windows, а собирается и исполняется в Linux-контейнере.
+# Без этого nginx.conf и sh-вставки в workflow уехали бы с CRLF и сломались.
+* text=auto eol=lf
+
+*.png binary
+*.woff2 binary
+*.ico binary

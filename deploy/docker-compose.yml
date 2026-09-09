@@ -1,0 +1,27 @@
+# Лендинг g-neuro.space на VPS Jino. Образ приезжает готовым (docker load из
+# GitHub Actions): на сервере ничего не собирается и ничего не тянется из
+# реестров — Docker Hub из РФ отдаёт 429 нестабильно, на соседнем проекте
+# (gravity-rpa-crm) из-за этого пришлось настраивать зеркало реестра.
+services:
+  web:
+    image: gravity-landing:latest
+    # Образ уже лежит локально после docker load. Без этого compose пойдёт
+    # искать его в Docker Hub и упадёт.
+    pull_policy: never
+    container_name: gravity-landing
+    restart: unless-stopped
+    # Jino перенаправляет 80/443 всех привязанных доменов на внутренний порт 80
+    # и сам терминирует TLS — слушаем только http:80.
+    ports:
+      - "80:80"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

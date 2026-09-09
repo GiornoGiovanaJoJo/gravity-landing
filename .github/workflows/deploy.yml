@@ -1,0 +1,113 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  # Ручной запуск — повторный деплой текущего main без пустого коммита
+  # и выкатка конкретного коммита при откате.
+  workflow_dispatch: {}
+
+# Два деплоя одновременно на один сервер не пускаем.
+concurrency:
+  group: deploy-landing
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: ci
+    runs-on: ubuntu-latest
+    env:
+      SSH: ssh -i ~/.ssh/deploy_key -p ${{ secrets.VPS_SSH_PORT }} -o StrictHostKeyChecking=accept-new
+      REMOTE: ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}
+      REMOTE_PATH: ${{ secrets.VPS_DEPLOY_PATH }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        # VITE_* вшиваются в бандл на этапе сборки, поэтому образ привязан к
+        # конкретному окружению. VITE_BASE=/ живёт здесь, а не в переменных
+        # репозитория: это свойство самостоятельного деплоя, и случайная правка
+        # переменной не должна превратить прод в сборку под /site/.
+        run: |
+          docker build \
+            --build-arg VITE_BASE='/' \
+            --build-arg VITE_APP_URL='${{ vars.VITE_APP_URL }}' \
+            --build-arg VITE_API_URL='' \
+            -t gravity-landing:${{ github.sha }} \
+            -t gravity-landing:latest .
+
+      - name: Sanity-check bundle
+        # Если build-arg не доедет до Vite, ошибка вылезет только в браузере
+        # («Войти» ведёт в никуда), поэтому проверяем содержимое сборки здесь.
+        run: |
+          cid=$(docker create gravity-landing:latest)
+          docker cp "$cid:/usr/share/nginx/html" ./_dist > /dev/null
+          docker rm "$cid" > /dev/null
+          grep -q 'crm.gravityrpa.ru'  _dist/assets/*.js
+          grep -q 'src="/assets/'      _dist/index.html
+          grep -q 'href="/favicon.svg"' _dist/index.html
+
+      - name: Export image
+        run: |
+          docker save gravity-landing:${{ github.sha }} gravity-landing:latest \
+            | gzip -1 > image.tar.gz
+          ls -lh image.tar.gz
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "${{ secrets.VPS_SSH_PORT }}" -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Upload image and compose file
+        run: |
+          $SSH "$REMOTE" "mkdir -p '$REMOTE_PATH'"
+          scp -i ~/.ssh/deploy_key -P "${{ secrets.VPS_SSH_PORT }}" \
+            image.tar.gz deploy/docker-compose.yml "$REMOTE:$REMOTE_PATH/"
+
+      - name: Load image & restart
+        run: |
+          $SSH "$REMOTE" "set -e
+            cd '$REMOTE_PATH'
+            # Точка отката: если новый образ окажется битым, вернуть прод одной
+            # командой — docker tag gravity-landing:previous gravity-landing:latest
+            # && docker compose up -d
+            docker image inspect gravity-landing:latest >/dev/null 2>&1 && \
+              docker tag gravity-landing:latest gravity-landing:previous || true
+            gunzip -c image.tar.gz | docker load
+            docker compose up -d --remove-orphans
+            rm -f image.tar.gz
+            # Базовые образы из реестра мы не тянем, но старые сборки лендинга
+            # копятся с каждым деплоем — чистим только висячие слои.
+            docker image prune -f || true"
+
+      - name: Smoke test
+        # Проверяем с самого сервера: так тест не зависит от того, пускает ли
+        # сеть раннера GitHub на российский адрес по 80 порту.
+        run: |
+          $SSH "$REMOTE" "set -e
+            for i in \$(seq 1 15); do
+              code=\$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1/healthz || true)
+              [ \"\$code\" = '200' ] && break
+              sleep 2
+            done
+            [ \"\$code\" = '200' ] || { echo \"healthz вернул \$code\"; docker logs gravity-landing --tail 50; exit 1; }
+            curl -fsS http://127.0.0.1/ | grep -q 'id=\"root\"'
+            echo 'страница отдаётся'
+            curl -sS -o /dev/null -w 'proxy /api/health: %{http_code}\n' --max-time 15 http://127.0.0.1/api/health"
+
+      - name: Внешняя проверка (справочно)
+        # Не роняет деплой: раннер GitHub может не иметь доступа к адресу VPS.
+        continue-on-error: true
+        run: |
+          curl -sS -o /dev/null -w 'по IP:     %{http_code}\n' --max-time 20 \
+            -H 'Host: ${{ vars.SITE_HOST }}' http://${{ vars.SITE_IP }}/healthz || true
+          curl -sS -o /dev/null -w 'по домену: %{http_code}\n' --max-time 20 \
+            http://${{ vars.SITE_HOST }}/healthz || true
