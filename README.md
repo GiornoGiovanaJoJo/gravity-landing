@@ -1,6 +1,6 @@
 # gravity-landing
 
-Лендинг студии **GNERO** и продукта **Gravity RPA** — React 19 + Vite + Tailwind v4.
+Лендинг студии **G-NEURO** и продукта **Gravity RPA** — React 19 + Vite + Tailwind v4.
 Собственного бэкенда нет: контент, брендинг и приём заявок берутся у CRM Gravity RPA.
 
 Прод: **https://g-neuro.space** (VPS Jino, Docker + nginx).

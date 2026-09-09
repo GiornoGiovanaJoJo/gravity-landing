@@ -7,7 +7,7 @@ import { cn } from '@/lib/cn'
  * ушедшая с неё вверх. Ни ракет, ни звёзд: намёк должен угадываться, а не
  * объявляться.
  */
-export function Logo({ className, name = 'GNERO' }: { className?: string; name?: string }) {
+export function Logo({ className, name = 'G-NEURO' }: { className?: string; name?: string }) {
   return (
     <span className={cn('inline-flex items-center gap-3', className)}>
       <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true" className="shrink-0">

@@ -13,7 +13,7 @@ import type { LandingContent } from './types'
  */
 export const defaultContent: LandingContent = {
   brand: {
-    name: 'GNERO',
+    name: 'G-NEURO',
     tagline: 'Цифровые продукты и автоматизация под ключ',
     appUrl: import.meta.env.VITE_APP_URL ?? '',
     // TODO: создать форму в CRM (раздел «Формы») и вписать её slug здесь или в админке.
@@ -373,7 +373,7 @@ export const defaultContent: LandingContent = {
 
   footer: {
     slogan: 'Проектируем, разрабатываем и запускаем цифровые продукты.',
-    copyright: '© 2026 GNERO',
+    copyright: '© 2026 G-NEURO',
     links: [],
   },
 
