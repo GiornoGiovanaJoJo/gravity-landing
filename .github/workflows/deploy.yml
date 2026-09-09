@@ -23,7 +23,9 @@ jobs:
     needs: ci
     runs-on: ubuntu-latest
     env:
-      SSH: ssh -i ~/.ssh/deploy_key -p ${{ secrets.VPS_SSH_PORT }} -o StrictHostKeyChecking=accept-new
+      # ConnectTimeout щедрый: sshd этого VPS отдаёт баннер с задержкой
+      # больше 15 секунд, на дефолтах соединение падает до аутентификации.
+      SSH: ssh -i ~/.ssh/deploy_key -p ${{ secrets.VPS_SSH_PORT }} -o StrictHostKeyChecking=accept-new -o ConnectTimeout=60 -o ServerAliveInterval=30
       REMOTE: ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}
       REMOTE_PATH: ${{ secrets.VPS_DEPLOY_PATH }}
     steps:
@@ -64,7 +66,9 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p "${{ secrets.VPS_SSH_PORT }}" -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+          # -T 60: тот же медленный баннер. Ключ не критичен — соединения идут
+          # с accept-new, поэтому неудача keyscan не должна валить деплой.
+          ssh-keyscan -T 60 -p "${{ secrets.VPS_SSH_PORT }}" -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts || true
 
       - name: Upload image and compose file
         run: |
