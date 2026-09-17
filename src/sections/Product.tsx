@@ -39,7 +39,9 @@ export function Product() {
   if (!tab) return null
 
   return (
-    <Section id="product" className="relative border-y border-line">
+    // overflow-hidden обязателен: свечение ниже шире узкого экрана, и без
+    // обрезки страница разъезжается вбок.
+    <Section id="product" className="relative overflow-hidden border-y border-line">
       <Bloom className="top-0 left-1/2 -translate-x-1/2" size={720} opacity={0.12} />
 
       <div className="relative grid gap-10 lg:grid-cols-[1fr_auto] lg:items-end">

@@ -90,10 +90,24 @@
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
   }
+  /*
+   * Боковая прокрутка запрещена на обоих элементах.
+   *
+   * overflow-x: hidden только на body на iOS не держит: страница всё равно
+   * ездит вбок, если что-то из декора вылезло за край. И clip, а не hidden:
+   * hidden делает элемент контейнером прокрутки, и position: sticky у шапки
+   * перестаёт работать, а clip просто обрезает.
+   *
+   * Это страховка, а не решение: вылезающий за край элемент чинится там, где
+   * он объявлен, иначе он останется невидимой причиной следующей поломки.
+   */
+  html,
+  body {
+    overflow-x: clip;
+  }
   body {
     background-color: var(--bg);
     color: var(--fg);
-    overflow-x: hidden;
   }
   ::selection {
     background: var(--accent);
