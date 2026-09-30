@@ -1,5 +1,5 @@
-import { useStore } from '@/lib/store'
-import { Card, Reveal, Section, SectionHeading } from '@/ui/primitives'
+import { useBrokerStore } from '../store'
+import { Card, Reveal, Section, SectionHeading } from '../ui'
 
 /**
  * Возможности кабинета.
@@ -13,7 +13,7 @@ import { Card, Reveal, Section, SectionHeading } from '@/ui/primitives'
  * читать подпись дважды — сначала картинку, потом заголовок.
  */
 export function Features() {
-  const { content } = useStore()
+  const { content } = useBrokerStore()
   const f = content.features
 
   return (

@@ -1,5 +1,5 @@
-import { useStore } from '@/lib/store'
-import { Card, Reveal, Section, SectionHeading } from '@/ui/primitives'
+import { useBrokerStore } from '../store'
+import { Card, Reveal, Section, SectionHeading } from '../ui'
 
 /**
  * Внедрение.
@@ -13,7 +13,7 @@ import { Card, Reveal, Section, SectionHeading } from '@/ui/primitives'
  * подтверждено.
  */
 export function Rollout() {
-  const { content } = useStore()
+  const { content } = useBrokerStore()
   const r = content.rollout
 
   return (

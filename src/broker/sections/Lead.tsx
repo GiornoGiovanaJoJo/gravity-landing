@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { submitLead, type LeadResult } from '@/lib/api'
-import { useStore } from '@/lib/store'
+import { useBrokerStore } from '../store'
 import { Icon } from '@/ui/Icon'
-import { GlassOrb } from '@/ui/iridescent'
-import { Button, Card, Eyebrow, Field, Modal, Reveal, Section } from '@/ui/primitives'
+import { Button, Card, Eyebrow, Field, Reveal, Section } from '../ui'
 
 /**
  * Приводит ввод к виду +7 (999) 999-99-99.
@@ -32,7 +31,7 @@ function isPhoneComplete(masked: string) {
 }
 
 function LeadForm({ compact = false }: { compact?: boolean }) {
-  const { content } = useStore()
+  const { content } = useBrokerStore()
   const lead = content.lead
   const contacts = content.contacts
 
@@ -111,7 +110,7 @@ function LeadForm({ compact = false }: { compact?: boolean }) {
         </p>
       )}
 
-      <Button type="submit" size="lg" className="w-full" disabled={sending || !name || !isPhoneComplete(phone)} arrow={!sending}>
+      <Button type="submit" size="lg" className="w-full" disabled={sending || !name || !isPhoneComplete(phone)}>
         {sending ? 'Отправляем…' : lead.submitLabel}
       </Button>
 
@@ -121,21 +120,17 @@ function LeadForm({ compact = false }: { compact?: boolean }) {
 }
 
 export function Lead() {
-  const { content } = useStore()
+  const { content } = useBrokerStore()
   const lead = content.lead
   const contacts = content.contacts
 
   return (
     <Section id="lead" className="border-t border-line">
-      <GlassOrb className="top-10 left-1/2 hidden -translate-x-1/2 lg:block" size={110} seed={300} parallax={20} />
-
       <div className="relative grid items-start gap-10 lg:grid-cols-2 lg:gap-20">
         <div>
           <Reveal>
             <Eyebrow>{lead.eyebrow}</Eyebrow>
-            <h2 className="mt-5 text-[length:var(--text-h2)] leading-[1.05] font-light tracking-tight text-balance uppercase">
-              {lead.title}
-            </h2>
+            <h2 className="b-headline mt-3 text-balance">{lead.title}</h2>
             <p className="mt-5 max-w-md text-fg-muted text-pretty">{lead.text}</p>
           </Reveal>
 
@@ -169,32 +164,5 @@ function ContactRow({ icon, label, href }: { icon: string; label: string; href: 
       </span>
       {label}
     </a>
-  )
-}
-
-/** Та же форма в модальном окне — её открывают кнопки из шапки, тарифов и баннера. */
-export function LeadModal() {
-  const { content, leadOpen, closeLead } = useStore()
-
-  return (
-    <Modal open={leadOpen} onClose={closeLead} title={content.lead.title}>
-      <div className="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-lg">{content.lead.title}</h2>
-          <p className="mt-1 text-sm text-fg-muted">{content.lead.text}</p>
-        </div>
-        <button
-          type="button"
-          onClick={closeLead}
-          aria-label="Закрыть"
-          className="shrink-0 rounded-pill p-2 text-fg-subtle transition hover:bg-accent-soft hover:text-fg"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <path d="M6 6l12 12M18 6L6 18" />
-          </svg>
-        </button>
-      </div>
-      <LeadForm compact />
-    </Modal>
   )
 }

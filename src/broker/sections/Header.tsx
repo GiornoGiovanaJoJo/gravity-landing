@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { useScrolled, type ThemeMode } from '@/lib/hooks'
-import { useStore } from '@/lib/store'
-import { Logo } from '@/ui/decor'
-import { Button, LinkButton } from '@/ui/primitives'
+import { useBrokerStore } from '../store'
+import { LinkButton, Logo } from '../ui'
 
 export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme: () => void }) {
-  const { content, appLink, openLead } = useStore()
+  const { content, appLink } = useBrokerStore()
   const scrolled = useScrolled(12)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -32,8 +31,13 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
           scrolled ? 'h-16' : 'h-20',
         )}
       >
-        <a href="#top" className="flex items-center" aria-label={content.brand.name}>
+        <a href="#top" className="flex items-center gap-3" aria-label={content.brand.name}>
           <Logo name={content.brand.name} />
+          {content.brand.tagline && (
+            <span className="hidden border-l border-line pl-3 text-[11px] font-semibold tracking-[0.16em] text-accent uppercase md:inline">
+              {content.brand.tagline}
+            </span>
+          )}
         </a>
 
         <nav className="hidden items-center gap-9 lg:flex" aria-label="Разделы страницы">
@@ -57,9 +61,9 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
           <LinkButton href={appLink('/login')} variant="ghost" size="sm" className="hidden sm:inline-flex">
             Войти
           </LinkButton>
-          <Button onClick={openLead} size="sm" className="hidden sm:inline-flex">
-            Обсудить задачу
-          </Button>
+          <LinkButton href="#demo" size="sm" className="hidden sm:inline-flex">
+            {content.hero.primaryCta}
+          </LinkButton>
 
           <button
             type="button"
@@ -87,17 +91,11 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
               </a>
             ))}
             <div className="mt-3 grid gap-2">
-              <Button
-                onClick={() => {
-                  setMenuOpen(false)
-                  openLead()
-                }}
-                arrow
-              >
-                Обсудить задачу
-              </Button>
+              <LinkButton href="#demo" onClick={() => setMenuOpen(false)}>
+                {content.hero.primaryCta}
+              </LinkButton>
               <LinkButton href={appLink('/login')} variant="outline">
-                Войти в Gravity RPA
+                Войти
               </LinkButton>
             </div>
           </nav>

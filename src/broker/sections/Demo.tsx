@@ -1,5 +1,5 @@
-import { useStore } from '@/lib/store'
-import { Eyebrow, Reveal, Section } from '@/ui/primitives'
+import { useBrokerStore } from '../store'
+import { Eyebrow, Reveal, Section } from '../ui'
 import { DemoForm } from './DemoForm'
 
 /**
@@ -13,7 +13,7 @@ import { DemoForm } from './DemoForm'
  * кнопку не нажимают из опасения попасть на звонок менеджера.
  */
 export function Demo() {
-  const { content } = useStore()
+  const { content } = useBrokerStore()
   const demo = content.demo
 
   return (
@@ -21,7 +21,7 @@ export function Demo() {
       <Reveal>
         <div className="rounded-2xl border border-accent/45 p-7 sm:p-10">
           <Eyebrow>{demo.eyebrow}</Eyebrow>
-          <h2 className="headline mt-4 max-w-2xl text-balance">{demo.title}</h2>
+          <h2 className="b-headline mt-4 max-w-2xl text-balance">{demo.title}</h2>
 
           <ol className="mt-9 grid gap-4 md:grid-cols-3">
             {demo.steps.map((step, i) => (

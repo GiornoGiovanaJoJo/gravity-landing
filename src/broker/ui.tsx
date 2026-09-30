@@ -1,7 +1,16 @@
-import { useEffect, useId, useState, type ReactNode } from 'react'
+import { useId, useState, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 import { useInView, usePrefersReducedMotion } from '@/lib/hooks'
-import { Icon } from './Icon'
+import { Icon } from '@/ui/Icon'
+
+/**
+ * Примитивы страницы про кабинеты застройщика и брокера.
+ *
+ * Свои, а не общие с главной: там кнопки-пилюли, лёгкие заголовки капсом и
+ * стеклянный декор студии, здесь — плотная деловая типографика и один мятный
+ * акцент. Свести их к одному набору с флагами значит получить компонент,
+ * который умеет выглядеть двумя несовместимыми способами.
+ */
 
 /* ------------------------------------------------------------------ */
 /* Появление при скролле                                               */
@@ -40,16 +49,16 @@ export function Reveal({
 type ButtonVariant = 'primary' | 'outline' | 'ghost'
 
 const BUTTON_BASE =
-  'group inline-flex shrink-0 items-center justify-center gap-2.5 rounded-pill text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-60'
+  'group inline-flex shrink-0 items-center justify-center gap-2.5 rounded-xl text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-60'
 
 /**
- * Основная кнопка — контрастная плашка цветом текста: белая на тёмном фоне и
- * чёрная на светлом. Это самый читаемый вариант в обеих темах и он же держит
- * минимализм макета, где цвет остаётся только на стеклянных объектах.
+ * Основная кнопка — акцентная плашка. Акцент на странице один, и он весь
+ * отдан целевому действию: кроме кнопок мятным окрашены только надзаголовки
+ * и первая полоса воронки, так что глаз находит «получить демо-доступ» сразу.
  */
 const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
-  primary: 'bg-fg text-bg hover:opacity-90 active:opacity-100',
-  outline: 'hairline surface text-fg hover:border-line-strong hover:bg-accent-soft',
+  primary: 'bg-accent text-accent-contrast hover:brightness-110 active:brightness-100',
+  outline: 'border border-accent/45 text-accent hover:border-accent hover:bg-accent-soft',
   ghost: 'text-fg-muted hover:bg-accent-soft hover:text-fg',
 }
 
@@ -64,21 +73,6 @@ interface ButtonProps {
   size?: keyof typeof BUTTON_SIZES
   className?: string
   children: ReactNode
-  /** Кружок со стрелкой справа — фирменная деталь кнопок студии. */
-  arrow?: boolean
-}
-
-function ArrowDot({ variant }: { variant: ButtonVariant }) {
-  return (
-    <span
-      className={cn(
-        'flex size-6 items-center justify-center rounded-full transition-transform duration-200 group-hover:translate-x-0.5',
-        variant === 'primary' ? 'bg-bg/15' : 'bg-accent-soft',
-      )}
-    >
-      <Icon name="ArrowRight" className="size-3.5" />
-    </span>
-  )
 }
 
 export function LinkButton({
@@ -87,15 +81,15 @@ export function LinkButton({
   size = 'md',
   className,
   children,
-  arrow = false,
-}: ButtonProps & { href: string }) {
+  onClick,
+}: ButtonProps & { href: string; onClick?: () => void }) {
   return (
     <a
       href={href}
-      className={cn(BUTTON_BASE, BUTTON_VARIANTS[variant], BUTTON_SIZES[size], arrow && 'pr-2', className)}
+      onClick={onClick}
+      className={cn(BUTTON_BASE, BUTTON_VARIANTS[variant], BUTTON_SIZES[size], className)}
     >
       {children}
-      {arrow && <ArrowDot variant={variant} />}
     </a>
   )
 }
@@ -108,7 +102,6 @@ export function Button({
   className,
   disabled,
   children,
-  arrow = false,
 }: ButtonProps & {
   onClick?: () => void
   type?: 'button' | 'submit'
@@ -119,10 +112,9 @@ export function Button({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={cn(BUTTON_BASE, BUTTON_VARIANTS[variant], BUTTON_SIZES[size], arrow && 'pr-2', className)}
+      className={cn(BUTTON_BASE, BUTTON_VARIANTS[variant], BUTTON_SIZES[size], className)}
     >
       {children}
-      {arrow && <ArrowDot variant={variant} />}
     </button>
   )
 }
@@ -143,7 +135,7 @@ export function Card({
   return (
     <div
       className={cn(
-        'surface rounded-card',
+        'surface rounded-2xl',
         hoverable && 'transition-colors duration-300 hover:border-line-strong',
         className,
       )}
@@ -154,7 +146,7 @@ export function Card({
 }
 
 export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
-  return <p className={cn('eyebrow', className)}>{children}</p>
+  return <p className={cn('b-eyebrow', className)}>{children}</p>
 }
 
 export function SectionHeading({
@@ -171,12 +163,10 @@ export function SectionHeading({
   className?: string
 }) {
   return (
-    <Reveal className={cn(align === 'center' ? 'mx-auto max-w-2xl text-center' : 'max-w-3xl', className)}>
-      {eyebrow && <Eyebrow className="mb-4">{eyebrow}</Eyebrow>}
-      <h2 className="text-[length:var(--text-h2)] leading-[1.05] font-light tracking-tight text-balance uppercase">
-        {title}
-      </h2>
-      {subtitle && <p className="mt-5 max-w-xl text-fg-muted text-pretty">{subtitle}</p>}
+    <Reveal className={cn(align === 'center' ? 'mx-auto max-w-2xl text-center' : 'max-w-5xl', className)}>
+      {eyebrow && <Eyebrow className="mb-3">{eyebrow}</Eyebrow>}
+      <h2 className="b-headline text-balance">{title}</h2>
+      {subtitle && <p className="mt-3 max-w-xl text-sm text-fg-muted text-pretty">{subtitle}</p>}
     </Reveal>
   )
 }
@@ -191,44 +181,9 @@ export function Section({
   children: ReactNode
 }) {
   return (
-    <section id={id} className={cn('relative mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-32', className)}>
+    <section id={id} className={cn('relative mx-auto w-full max-w-7xl px-5 py-16 sm:px-8', className)}>
       {children}
     </section>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* Лента                                                               */
-/* ------------------------------------------------------------------ */
-
-/**
- * Бесконечная лента на CSS-анимации: содержимое дублируется один раз, трек
- * уезжает на -50%, стык незаметен. При наведении лента замирает, чтобы её можно
- * было прочитать.
- */
-export function Marquee({
-  children,
-  durationSec = 44,
-  reverse = false,
-  className,
-}: {
-  children: ReactNode
-  durationSec?: number
-  reverse?: boolean
-  className?: string
-}) {
-  return (
-    <div className={cn('fade-edges-x overflow-hidden', className)}>
-      <div
-        className={cn('marquee-track', reverse ? 'animate-marquee-reverse' : 'animate-marquee')}
-        style={{ '--marquee-duration': `${durationSec}s` } as React.CSSProperties}
-      >
-        {children}
-        <div aria-hidden="true" className="flex">
-          {children}
-        </div>
-      </div>
-    </div>
   )
 }
 
@@ -263,57 +218,6 @@ export function AccordionItem({ question, answer }: { question: string; answer: 
       </h3>
       <div id={id} role="region" hidden={!open} className={cn(open && 'pb-6')}>
         <p className="max-w-3xl text-sm leading-relaxed text-fg-muted text-pretty">{answer}</p>
-      </div>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* Модальное окно                                                      */
-/* ------------------------------------------------------------------ */
-
-export function Modal({
-  open,
-  onClose,
-  title,
-  children,
-}: {
-  open: boolean
-  onClose: () => void
-  title: string
-  children: ReactNode
-}) {
-  useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', onKey)
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = previousOverflow
-    }
-  }, [open, onClose])
-
-  if (!open) return null
-
-  return (
-    <div className="fixed inset-0 z-100 flex items-end justify-center p-4 sm:items-center">
-      <button
-        type="button"
-        aria-label="Закрыть"
-        onClick={onClose}
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        className="hairline relative w-full max-w-lg rounded-card bg-bg-elevated p-6 shadow-2xl sm:p-8"
-      >
-        {children}
       </div>
     </div>
   )
@@ -382,5 +286,31 @@ export function Field({
         />
       )}
     </label>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Знак                                                                */
+/* ------------------------------------------------------------------ */
+
+/** Тот же знак, что на главной, но набран плотнее — под деловой заголовок. */
+export function Logo({ className, name = 'G-NEURO' }: { className?: string; name?: string }) {
+  return (
+    <span className={cn('inline-flex items-center gap-2.5', className)}>
+      <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true" className="shrink-0">
+        <ellipse
+          cx="14"
+          cy="14"
+          rx="12"
+          ry="6"
+          transform="rotate(-35 14 14)"
+          stroke="currentColor"
+          strokeOpacity="0.5"
+          strokeWidth="1.2"
+        />
+        <circle cx="20.5" cy="7.5" r="3.2" fill="currentColor" />
+      </svg>
+      <span className="text-[17px] font-bold tracking-[0.08em] uppercase">{name}</span>
+    </span>
   )
 }

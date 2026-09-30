@@ -1,8 +1,8 @@
-import { useStore } from '@/lib/store'
-import { Logo } from '@/ui/decor'
+import { useBrokerStore } from '../store'
+import { Logo } from '../ui'
 
 export function Footer() {
-  const { content, appLink } = useStore()
+  const { content, appLink } = useBrokerStore()
   const { footer, contacts, nav, brand } = content
 
   const legal = [
@@ -10,6 +10,8 @@ export function Footer() {
     contacts.offerUrl && { label: 'Условия использования', href: contacts.offerUrl },
     ...footer.links,
   ].filter(Boolean) as { label: string; href: string }[]
+
+  const hasContacts = Boolean(contacts.phone || contacts.email || contacts.telegram || contacts.address)
 
   return (
     <footer className="border-t border-line">
@@ -20,7 +22,7 @@ export function Footer() {
         </div>
 
         <nav aria-label="Разделы сайта">
-          <h2 className="eyebrow">Разделы</h2>
+          <h2 className="b-eyebrow">Разделы</h2>
           <ul className="mt-5 space-y-3">
             {nav.map((link) => (
               <li key={link.href}>
@@ -29,17 +31,6 @@ export function Footer() {
                 </a>
               </li>
             ))}
-            {/* Страница отдельного продукта. Ссылка здесь, а не в верхнем
-                меню: главная рассказывает про студию, и вклинивать в её
-                навигацию один из продуктов значит сбивать этот рассказ. */}
-            <li>
-              <a
-                href={`${import.meta.env.BASE_URL}broker`}
-                className="text-sm text-fg-muted transition hover:text-fg"
-              >
-                Кабинеты застройщика и брокера
-              </a>
-            </li>
             <li>
               <a href={appLink('/login')} className="text-sm text-fg-muted transition hover:text-fg">
                 Войти в Gravity RPA
@@ -48,8 +39,10 @@ export function Footer() {
           </ul>
         </nav>
 
-        <div>
-          <h2 className="eyebrow">Контакты</h2>
+        {/* Пока контакты не заполнены в админке, колонка не рисуется: пустой
+            заголовок «Контакты» читается как недоделанный сайт. */}
+        <div className={hasContacts ? '' : 'hidden'}>
+          <h2 className="b-eyebrow">Контакты</h2>
           <ul className="mt-5 space-y-3 text-sm text-fg-muted">
             {contacts.phone && (
               <li>

@@ -1,28 +1,30 @@
 /**
- * Контракт контента сайта.
+ * Контракт контента сайта студии.
  *
  * Тот же документ описан zod-схемой на сервере
  * (server/src/modules/landing/schema.ts) — он приходит из
  * GET /api/public/landing и редактируется админом платформы. Всё, что здесь
  * объявлено, обязано иметь дефолт в content.ts: сайт должен полностью
  * работать даже когда CRM недоступна.
- *
- * Сайт рассказывает об одном продукте — кабинетах застройщика и брокера, —
- * поэтому и разделы здесь его: аналитика канала, возможности, демо-доступ,
- * экраны интерфейса, внедрение. Прежний набор про студию (услуги, тарифы,
- * отзывы, клиенты) убран: страница, которая рассказывает обо всём сразу, не
- * продаёт ничего конкретного.
  */
 
 export type SectionId =
   | 'hero'
-  | 'metrics'
-  | 'features'
-  | 'demo'
-  | 'screens'
-  | 'rollout'
+  | 'ticker'
+  | 'services'
+  | 'about'
+  | 'process'
+  | 'industries'
+  | 'product'
+  | 'plans'
+  | 'cta'
+  | 'reviews'
+  | 'clients'
   | 'faq'
   | 'lead'
+
+/** Имя иконки из lucide-react. Резолвится через карту в ui/Icon.tsx. */
+export type IconName = string
 
 export interface LinkItem {
   label: string
@@ -38,121 +40,144 @@ export interface Brand {
   formSlug: string
 }
 
-/** Строка макета интерфейса в первом экране: этап воронки и его вес. */
-export interface HeroStage {
-  label: string
-  /** Доля от ширины полосы, 0–100. Чем шире, тем больше на этапе. */
-  width: number
-}
-
 export interface HeroContent {
   eyebrow: string
   /** Заголовок разбит на строки: набирается крупно, перенос задаётся вручную. */
   titleLines: string[]
   subtitle: string
-  /** Подпись кнопки под полем e-mail. */
   primaryCta: string
-  /** Кнопка «получить презентацию» и ссылка на скачивание. */
-  deckCta: string
-  deckLink: string
-  deckUrl: string
+  secondaryCta: string
   note: string
-  /** Пункты бокового меню в макете кабинета. */
-  mockNav: string[]
-  mockStages: HeroStage[]
-  /**
-   * Обязательная оговорка под макетом. Цифры в интерфейсе — демонстрационные,
-   * и выдавать их за результаты клиента нельзя.
-   */
-  mockNote: string
 }
 
-/** Показатель канала: крупное число с подписью. */
-export interface MetricItem {
-  value: string
-  label: string
+export interface ServiceItem {
+  icon: IconName
+  title: string
+  text: string
+  /** Крупная карточка занимает две колонки в сетке услуг. */
+  wide?: boolean
 }
 
-/** Строка горизонтальной диаграммы. */
-export interface BarItem {
-  label: string
-  value: number
-}
-
-export interface MetricsContent {
+export interface ServicesContent {
   eyebrow: string
   title: string
   subtitle: string
-  items: MetricItem[]
-  funnelTitle: string
-  funnel: BarItem[]
-  trendTitle: string
-  /** Значения ломаной по неделям — рисуются как есть, без нормализации. */
-  trend: number[]
-  trendLabels: string[]
-  agenciesTitle: string
-  agencies: BarItem[]
-  /**
-   * Три пустые рамки под результаты пилота. Пока цифр нет, честнее показать
-   * пустое место с подписью, чем придумать число.
-   */
-  pilotTitle: string
-  pilotSlots: string[]
+  items: ServiceItem[]
 }
 
-export interface FeatureItem {
+export interface AboutMetric {
+  value: number
+  suffix: string
+  label: string
+}
+
+export interface AboutContent {
+  eyebrow: string
+  title: string
+  text: string
+  /** Строка о команде — здесь же имя основателя, один раз на весь сайт. */
+  signature: string
+  metrics: AboutMetric[]
+}
+
+export interface ProcessStep {
+  title: string
+  text: string
+  /** Ориентировочный срок этапа. */
+  duration: string
+}
+
+export interface ProcessContent {
+  eyebrow: string
+  title: string
+  subtitle: string
+  steps: ProcessStep[]
+}
+
+export interface IndustryItem {
+  icon: IconName
   title: string
   text: string
 }
 
-export interface FeaturesContent {
+export interface IndustriesContent {
   eyebrow: string
   title: string
-  items: FeatureItem[]
-  /** Строка с интеграциями под карточками. */
-  integrations: string
+  subtitle: string
+  items: IndustryItem[]
 }
 
-export interface DemoStep {
+/** Идентификатор HTML-мокапа, который рисуется во вкладке продукта. */
+export type MockKind = 'kanban' | 'automation' | 'call' | 'industry'
+
+export interface ProductTab {
+  id: string
+  label: string
+  icon: IconName
   title: string
   text: string
+  bullets: string[]
+  mock: MockKind
 }
 
-export interface DemoContent {
+export interface ProductContent {
   eyebrow: string
   title: string
-  steps: DemoStep[]
-  submitLabel: string
+  subtitle: string
+  primaryCta: string
+  secondaryCta: string
+  tabs: ProductTab[]
 }
 
-/** Экран кабинета в карусели. */
-export interface ScreenItem {
-  title: string
-  text: string
-  /** Адрес картинки. Пусто — рисуется рамка с подписью. */
-  imageUrl: string
+export interface PlanItem {
+  name: string
+  description: string
+  price: string
+  features: string[]
+  highlighted: boolean
+  cta: string
 }
 
-export interface ScreensContent {
+export interface PlansContent {
   eyebrow: string
   title: string
-  frameLabel: string
-  items: ScreenItem[]
-}
-
-export interface RolloutStep {
-  title: string
-  text: string
-}
-
-export interface RolloutContent {
-  eyebrow: string
-  title: string
-  steps: RolloutStep[]
-  /** Плашка под кейсы или приглашение в пилот. Пусто — блок не рисуется. */
+  subtitle: string
   note: string
-  /** Юридические отметки: заявления, которые должны быть правдой. */
-  badges: string[]
+  items: PlanItem[]
+}
+
+export interface CtaContent {
+  title: string
+  text: string
+  primaryCta: string
+  secondaryCta: string
+}
+
+export interface ReviewItem {
+  author: string
+  role: string
+  company: string
+  text: string
+  logoUrl: string
+}
+
+export interface ReviewsContent {
+  eyebrow: string
+  title: string
+  subtitle: string
+  items: ReviewItem[]
+}
+
+export interface ClientItem {
+  name: string
+  logoUrl: string
+}
+
+export interface ClientsContent {
+  eyebrow: string
+  title: string
+  subtitle: string
+  items: ClientItem[]
 }
 
 export interface FaqItem {
@@ -206,14 +231,20 @@ export interface LandingContent {
   brand: Brand
   nav: LinkItem[]
   hero: HeroContent
-  metrics: MetricsContent
-  features: FeaturesContent
-  demo: DemoContent
-  screens: ScreensContent
-  rollout: RolloutContent
+  ticker: string[]
+  services: ServicesContent
+  about: AboutContent
+  process: ProcessContent
+  industries: IndustriesContent
+  product: ProductContent
+  plans: PlansContent
+  cta: CtaContent
+  reviews: ReviewsContent
+  clients: ClientsContent
   faq: FaqContent
   lead: LeadContent
   contacts: Contacts
   footer: FooterContent
+  /** Порядок массива = порядок секций на странице. */
   sections: SectionState[]
 }

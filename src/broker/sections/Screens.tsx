@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { useStore } from '@/lib/store'
+import { useBrokerStore } from '../store'
 import { cn } from '@/lib/cn'
 import { Icon } from '@/ui/Icon'
-import { Reveal, Section, SectionHeading } from '@/ui/primitives'
+import { Reveal, Section, SectionHeading } from '../ui'
 
 /**
  * Экраны кабинета.
@@ -16,7 +16,7 @@ import { Reveal, Section, SectionHeading } from '@/ui/primitives'
  * уезжающий из-под взгляда экран раздражает.
  */
 export function Screens() {
-  const { content } = useStore()
+  const { content } = useBrokerStore()
   const s = content.screens
   const [index, setIndex] = useState(0)
   const [failed, setFailed] = useState<Set<string>>(() => new Set())
@@ -48,7 +48,7 @@ export function Screens() {
               <Ghost />
 
               <div className="min-w-0 flex-1 rounded-2xl border border-accent/45 p-4 sm:p-5 lg:max-w-3xl">
-                <p className="caption-label">{s.frameLabel}</p>
+                <p className="b-caption">{s.frameLabel}</p>
                 <div className="mt-4 overflow-hidden rounded-xl">
                   {current.imageUrl && !failed.has(current.imageUrl) ? (
                     <img

@@ -1,9 +1,9 @@
 import { useId, useState } from 'react'
 import { submitLead, type LeadResult } from '@/lib/api'
-import { useStore } from '@/lib/store'
+import { useBrokerStore } from '../store'
 import { cn } from '@/lib/cn'
 import { Icon } from '@/ui/Icon'
-import { Button } from '@/ui/primitives'
+import { Button } from '../ui'
 
 /**
  * Запрос демо-доступа: одно поле и кнопка.
@@ -27,7 +27,7 @@ export function DemoForm({
   source?: string
   className?: string
 }) {
-  const { content } = useStore()
+  const { content } = useBrokerStore()
   const [email, setEmail] = useState('')
   const [state, setState] = useState<'idle' | 'sending' | LeadResult>('idle')
   const id = useId()

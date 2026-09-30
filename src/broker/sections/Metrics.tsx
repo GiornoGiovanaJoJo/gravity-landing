@@ -1,6 +1,6 @@
-import { useStore } from '@/lib/store'
-import { Card, Reveal, Section, SectionHeading } from '@/ui/primitives'
-import type { BarItem } from '@/types'
+import { useBrokerStore } from '../store'
+import { Card, Reveal, Section, SectionHeading } from '../ui'
+import type { BarItem } from '../types'
 
 /**
  * Аналитика канала.
@@ -13,7 +13,7 @@ import type { BarItem } from '@/types'
  * клиента, а такой клиент у нас пока не назван.
  */
 export function Metrics() {
-  const { content } = useStore()
+  const { content } = useBrokerStore()
   const m = content.metrics
 
   return (
@@ -24,7 +24,7 @@ export function Metrics() {
         {m.items.map((item, i) => (
           <Reveal key={item.label} delayMs={i * 60}>
             <Card className="h-full p-6">
-              <p className="text-[length:var(--text-h3)] leading-none text-accent">{item.value}</p>
+              <p className="text-[length:var(--b-metric)] leading-none text-accent">{item.value}</p>
               <p className="mt-4 text-sm text-fg-muted text-pretty">{item.label}</p>
             </Card>
           </Reveal>
@@ -58,7 +58,7 @@ export function Metrics() {
           придуманного числа и заодно показывает, что именно мы считаем. */}
       {m.pilotSlots.length > 0 && (
         <Reveal className="mt-12">
-          <p className="caption-label">{m.pilotTitle}</p>
+          <p className="b-caption">{m.pilotTitle}</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             {m.pilotSlots.map((slot) => (
               <div key={slot} className="rounded-2xl border border-dashed border-line p-5">
@@ -74,7 +74,7 @@ export function Metrics() {
 }
 
 function ChartTitle({ children }: { children: React.ReactNode }) {
-  return <p className="caption-label mb-6">{children}</p>
+  return <p className="b-caption mb-6">{children}</p>
 }
 
 /**
