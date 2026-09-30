@@ -23,7 +23,7 @@ export function Features() {
       <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {f.items.map((item, i) => (
           <Reveal key={item.title} delayMs={(i % 3) * 70}>
-            <Card className="h-full p-6" hoverable>
+            <Card tint className="h-full p-6">
               <h3 className="text-lg font-semibold">{item.title}</h3>
               <p className="mt-3 text-sm leading-relaxed text-fg-muted text-pretty">{item.text}</p>
             </Card>
@@ -33,7 +33,7 @@ export function Features() {
 
       {f.integrations && (
         <Reveal delayMs={120}>
-          <p className="mt-4 rounded-2xl border border-line px-5 py-4 text-sm text-fg-muted text-pretty">
+          <p className="mt-4 rounded-xl bg-bg-soft px-5 py-4 text-sm text-fg-muted text-pretty">
             {f.integrations}
           </p>
         </Reveal>

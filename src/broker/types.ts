@@ -16,7 +16,6 @@ export type BrokerSectionId =
   | 'demo'
   | 'screens'
   | 'rollout'
-  | 'faq'
   | 'lead'
 
 export interface LinkItem {
@@ -93,6 +92,11 @@ export interface MetricsContent {
    */
   pilotTitle: string
   pilotSlots: string[]
+  /**
+   * Ряд «Результаты внедрения» — заглушка под цифры пилота. Пока цифр нет, он
+   * скрыт: пустые рамки на витрине читаются как недоделанная страница.
+   */
+  pilotVisible: boolean
 }
 
 export interface FeatureItem {
@@ -150,28 +154,27 @@ export interface RolloutContent {
   badges: string[]
 }
 
-export interface FaqItem {
-  question: string
-  answer: string
-}
-
-export interface FaqContent {
-  eyebrow: string
-  title: string
-  subtitle: string
-  items: FaqItem[]
-}
-
 export interface LeadContent {
   eyebrow: string
   title: string
   text: string
   submitLabel: string
-  consent: string
   successTitle: string
   successText: string
+  /** Приписка под финальной формой: срок, отсутствие карты, тестовые данные. */
+  note: string
   /** Показывается, когда форма не настроена или сервер недоступен. */
   fallbackText: string
+}
+
+/** Документы и реквизиты: показывается только то, что заполнено. */
+export interface Legal {
+  legalName: string
+  inn: string
+  ogrn: string
+  address: string
+  privacyUrl: string
+  consentUrl: string
 }
 
 export interface Contacts {
@@ -206,9 +209,9 @@ export interface BrokerLandingContent {
   demo: DemoContent
   screens: ScreensContent
   rollout: RolloutContent
-  faq: FaqContent
   lead: LeadContent
   contacts: Contacts
+  legal: Legal
   footer: FooterContent
   sections: SectionState[]
 }

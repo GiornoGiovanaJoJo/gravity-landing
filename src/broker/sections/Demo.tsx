@@ -19,13 +19,13 @@ export function Demo() {
   return (
     <Section id="demo">
       <Reveal>
-        <div className="rounded-2xl border border-accent/45 p-7 sm:p-10">
+        <div className="b-panel b-glow rounded-3xl p-7 sm:p-12">
           <Eyebrow>{demo.eyebrow}</Eyebrow>
           <h2 className="b-headline mt-4 max-w-2xl text-balance">{demo.title}</h2>
 
           <ol className="mt-9 grid gap-4 md:grid-cols-3">
             {demo.steps.map((step, i) => (
-              <li key={step.title} className="rounded-xl border border-line p-5">
+              <li key={step.title} className="rounded-xl border border-line bg-bg-elevated p-5">
                 <span className="text-sm font-semibold text-accent tabular-nums">
                   {String(i + 1).padStart(2, '0')}
                 </span>

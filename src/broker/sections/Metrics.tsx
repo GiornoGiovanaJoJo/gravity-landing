@@ -1,4 +1,6 @@
+import { useEffect, useRef } from 'react'
 import { useBrokerStore } from '../store'
+import { track } from '../tracking'
 import { Card, Reveal, Section, SectionHeading } from '../ui'
 import type { BarItem } from '../types'
 
@@ -15,6 +17,26 @@ import type { BarItem } from '../types'
 export function Metrics() {
   const { content } = useBrokerStore()
   const m = content.metrics
+  const seen = useRef(false)
+
+  // Долистал ли человек до цифр канала — отдельная цель: до неё доходят те, кто
+  // читает страницу, а не закрывает её на первом экране.
+  useEffect(() => {
+    const el = document.getElementById('metrics')
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !seen.current) {
+          seen.current = true
+          track('analytics_seen')
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.3 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <Section id="metrics">
@@ -23,7 +45,7 @@ export function Metrics() {
       <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {m.items.map((item, i) => (
           <Reveal key={item.label} delayMs={i * 60}>
-            <Card className="h-full p-6">
+            <Card tint className="h-full p-6">
               <p className="text-[length:var(--b-metric)] leading-none text-accent">{item.value}</p>
               <p className="mt-4 text-sm text-fg-muted text-pretty">{item.label}</p>
             </Card>
@@ -33,35 +55,36 @@ export function Metrics() {
 
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
         <Reveal>
-          <Card className="h-full p-6">
+          <Card tint className="h-full p-6">
             <ChartTitle>{m.funnelTitle}</ChartTitle>
             <Bars items={m.funnel} tone="accent" />
           </Card>
         </Reveal>
 
         <Reveal delayMs={80}>
-          <Card className="h-full p-6">
+          <Card tint className="h-full p-6">
             <ChartTitle>{m.trendTitle}</ChartTitle>
             <Trend values={m.trend} labels={m.trendLabels} />
           </Card>
         </Reveal>
 
         <Reveal delayMs={160}>
-          <Card className="h-full p-6">
+          <Card tint className="h-full p-6">
             <ChartTitle>{m.agenciesTitle}</ChartTitle>
             <Bars items={m.agencies} tone="indigo" />
           </Card>
         </Reveal>
       </div>
 
-      {/* Пустые рамки под цифры пилота. Пустое место с подписью честнее
-          придуманного числа и заодно показывает, что именно мы считаем. */}
-      {m.pilotSlots.length > 0 && (
+      {/* Рамки под цифры пилота. Пока цифр нет, ряд скрыт флагом: пустые
+          рамки на витрине читаются как недоделанная страница, а придумывать
+          числа нельзя. */}
+      {m.pilotVisible && m.pilotSlots.length > 0 && (
         <Reveal className="mt-12">
           <p className="b-caption">{m.pilotTitle}</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             {m.pilotSlots.map((slot) => (
-              <div key={slot} className="rounded-2xl border border-dashed border-line p-5">
+              <div key={slot} className="rounded-xl border border-dashed border-line p-5">
                 <span className="block h-7 w-12 rounded border-2 border-line" aria-hidden="true" />
                 <p className="mt-3 text-sm text-fg-muted text-pretty">{slot}</p>
               </div>

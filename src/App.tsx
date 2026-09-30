@@ -87,7 +87,7 @@ export default function App() {
   if (redirecting) return null
 
   if (isBrokerPath(window.location.pathname)) {
-    return <BrokerPage theme={theme} onToggleTheme={toggle} />
+    return <BrokerPage />
   }
 
   return <LandingPage theme={theme} onToggleTheme={toggle} />

@@ -1,10 +1,18 @@
 import { useEffect, useState } from 'react'
 import { cn } from '@/lib/cn'
-import { useScrolled, type ThemeMode } from '@/lib/hooks'
+import { useScrolled } from '@/lib/hooks'
 import { useBrokerStore } from '../store'
 import { LinkButton, Logo } from '../ui'
 
-export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme: () => void }) {
+/**
+ * Шапка страницы продукта.
+ *
+ * До прокрутки она лежит на тёмной панели первого экрана и своего фона не
+ * имеет; дальше становится белой. Переключателя темы здесь нет: палитра
+ * страницы фиксирована макетом, и кнопка, которая ничего не меняет, хуже её
+ * отсутствия.
+ */
+export function Header() {
   const { content, appLink } = useBrokerStore()
   const scrolled = useScrolled(12)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -22,7 +30,7 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
     <header
       className={cn(
         'sticky top-0 z-50 transition-all duration-300',
-        scrolled ? 'border-b border-line bg-bg/85 backdrop-blur-xl' : 'border-b border-transparent',
+        scrolled ? 'border-b border-line bg-bg/92 backdrop-blur-xl' : 'b-panel border-b border-transparent',
       )}
     >
       <div
@@ -34,7 +42,7 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
         <a href="#top" className="flex items-center gap-3" aria-label={content.brand.name}>
           <Logo name={content.brand.name} />
           {content.brand.tagline && (
-            <span className="hidden border-l border-line pl-3 text-[11px] font-semibold tracking-[0.16em] text-accent uppercase md:inline">
+            <span className="b-caption hidden border-l border-line pl-3 text-accent md:inline">
               {content.brand.tagline}
             </span>
           )}
@@ -49,15 +57,6 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
         </nav>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onToggleTheme}
-            aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'}
-            className="hairline flex size-10 items-center justify-center rounded-full text-fg-muted transition hover:text-fg"
-          >
-            {theme === 'dark' ? <SunGlyph /> : <MoonGlyph />}
-          </button>
-
           <LinkButton href={appLink('/login')} variant="ghost" size="sm" className="hidden sm:inline-flex">
             Войти
           </LinkButton>
@@ -78,7 +77,7 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
       </div>
 
       {menuOpen && (
-        <div className="border-t border-line bg-bg/95 backdrop-blur-xl lg:hidden">
+        <div className="border-t border-line bg-bg/97 backdrop-blur-xl lg:hidden">
           <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-5 py-5 sm:px-8" aria-label="Разделы страницы">
             {content.nav.map((link) => (
               <a
@@ -105,24 +104,7 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
   )
 }
 
-/* Мелкие глифы рисуем инлайном: тянуть ради них ещё три иконки из пакета незачем. */
-
-function SunGlyph() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
-    </svg>
-  )
-}
-
-function MoonGlyph() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
-    </svg>
-  )
-}
+/* Мелкие глифы рисуем инлайном: тянуть ради них ещё две иконки из пакета незачем. */
 
 function MenuGlyph() {
   return (

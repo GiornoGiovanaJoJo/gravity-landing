@@ -1,6 +1,7 @@
 import { useBrokerStore } from '../store'
-import { Eyebrow, LinkButton, Reveal } from '../ui'
+import { Eyebrow, Reveal } from '../ui'
 import { DemoForm } from './DemoForm'
+import { DeckActions } from './DeckActions'
 
 /**
  * Первый экран.
@@ -17,8 +18,8 @@ export function Hero() {
   const hero = content.hero
 
   return (
-    <section id="top" className="relative">
-      <div className="relative mx-auto grid max-w-7xl items-start gap-12 px-5 pt-14 pb-12 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:pt-20 lg:pb-14">
+    <section id="top" className="b-panel b-glow relative">
+      <div className="relative mx-auto grid max-w-7xl items-start gap-12 px-5 pt-14 pb-20 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:pt-20 lg:pb-28">
         <div>
           <Reveal>
             <Eyebrow>{hero.eyebrow}</Eyebrow>
@@ -45,21 +46,7 @@ export function Hero() {
           </Reveal>
 
           <Reveal delayMs={340}>
-            <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <LinkButton href="#lead" variant="outline">
-                {hero.deckCta}
-              </LinkButton>
-              {/* Ссылки на файл может не быть, пока презентацию не загрузили —
-                  мёртвая кнопка «Скачать» хуже её отсутствия. */}
-              {hero.deckUrl && (
-                <a
-                  href={hero.deckUrl}
-                  className="text-sm text-fg-muted underline underline-offset-4 transition hover:text-fg"
-                >
-                  {hero.deckLink}
-                </a>
-              )}
-            </div>
+            <DeckActions className="mt-7" />
           </Reveal>
         </div>
 

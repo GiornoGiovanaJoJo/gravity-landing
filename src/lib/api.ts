@@ -1,4 +1,5 @@
 import type { LandingContent } from '@/types'
+import { utmValues } from './utm'
 
 /** Пусто = тот же origin. В разработке запросы уходят через прокси Vite на :4000. */
 const API = import.meta.env.VITE_API_URL ?? ''
@@ -55,13 +56,12 @@ export type LeadResult = 'ok' | 'not-configured' | 'error'
  * лид, отсеивает дубли и запускает сценарии автоматизации. Никаких секретов на
  * клиенте — только slug формы.
  */
-export async function submitLead(formSlug: string, payload: LeadPayload): Promise<LeadResult> {
+export async function submitLead(
+  formSlug: string,
+  payload: LeadPayload,
+  extra: Record<string, string> = {},
+): Promise<LeadResult> {
   if (!formSlug) return 'not-configured'
-
-  const params = new URLSearchParams(window.location.search)
-  const utm = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']
-    .map((key) => [key, params.get(key)] as const)
-    .filter((pair): pair is readonly [string, string] => Boolean(pair[1]))
 
   const values: Record<string, string> = {
     name: payload.name,
@@ -72,7 +72,8 @@ export async function submitLead(formSlug: string, payload: LeadPayload): Promis
     // отдельных utm-колонок не имеет, и заводить их ради лендинга незачем.
     source: 'Сайт Gravity RPA',
     page: window.location.pathname,
-    ...Object.fromEntries(utm),
+    ...utmValues(),
+    ...extra,
   }
 
   try {

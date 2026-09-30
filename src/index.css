@@ -351,61 +351,109 @@
 /* ------------------------------------------------------------------ */
 
 /**
- * Своя палитра на отдельной странице продукта.
+ * Палитра страницы продукта — из коммерческих материалов G-neuro.
  *
- * Чёрная база главной здесь не годится: на странице показан снимок интерфейса
- * кабинета, а он тёмно-синий, и на чёрном фоне читался бы вклеенным чужим
- * изображением. Акцент мятный — он же цвет целевого действия.
+ * Тёмная только шапка первого экрана, дальше контент лежит на белой карточке:
+ * страница про партнёрские продажи читается как деловой документ, а не как
+ * витрина студии. Поэтому и токены здесь фиксированы, без светлой и тёмной
+ * версии — переключатель темы на этой странице не показывается.
  *
  * Переопределяются токены, а не классы: всё, что построено на var(--bg),
- * var(--accent) и прочих, перекрашивается само, включая общие хуки и утилиты.
+ * var(--accent) и прочих, перекрашивается само, включая общие утилиты.
  */
 .broker-theme {
-  --bg: #0b1321;
-  --bg-soft: #0f1829;
-  --bg-elevated: #121d33;
-  --fg: #e8eef8;
-  --fg-muted: #9aa9bf;
-  --fg-subtle: #6d7e97;
-  --line: rgba(140, 170, 215, 0.16);
-  --line-strong: rgba(140, 170, 215, 0.32);
-  --accent: #34d6a3;
-  --accent-soft: rgba(52, 214, 163, 0.12);
-  --accent-contrast: #07131f;
-  --surface-alpha: 96%;
+  /* Фирменные цвета ТЗ. */
+  --b-cyan: #14ddee;
+  --b-teal: #0e8ca8;
+  --b-navy: #08152b;
+  --b-tint: #eef7fa;
 
-  /* Серии на диаграммах: от акцента к сиреневому. Этапы воронки должны
-     отличаться на глаз, но читаться как одна группа. */
-  --chart-1: #34d6a3;
-  --chart-2: #3b6be8;
-  --chart-3: #4f52dd;
-  --chart-4: #7a5bd6;
+  --bg: #ffffff;
+  --bg-soft: var(--b-tint);
+  --bg-elevated: #ffffff;
+  --fg: #16202e;
+  --fg-muted: #5f6b78;
+  --fg-subtle: #7a8794;
+  --line: #dde8ee;
+  --line-strong: #c2d4dd;
 
-  --b-display: clamp(2.5rem, 5.4vw, 4.5rem);
-  --b-headline: clamp(1.75rem, 3vw, 2.6rem);
-  --b-metric: clamp(2rem, 2.6vw, 2.6rem);
+  /*
+   * Кнопка заливается цианом, а подписи и номера — бирюзой.
+   *
+   * Циан на белом даёт 1.5:1 и как текст не читается вовсе; бирюза — 4.6:1.
+   * Поэтому один и тот же фирменный акцент разведён на два токена: заливку и
+   * текст. Смешивать их нельзя ни в одну сторону.
+   */
+  --accent: var(--b-teal);
+  --accent-fill: var(--b-cyan);
+  --accent-soft: rgba(20, 221, 238, 0.12);
+  --accent-contrast: var(--b-navy);
+
+  /* Серии на диаграммах: от циана к тёмно-синему — одна группа, разные этапы. */
+  --chart-1: var(--b-cyan);
+  --chart-2: var(--b-teal);
+  --chart-3: #2f6f9b;
+  --chart-4: #1b3f68;
+
+  --surface-alpha: 100%;
+  --b-display: clamp(2.25rem, 4.6vw, 3.75rem);
+  --b-headline: clamp(1.625rem, 2.8vw, 2.4rem);
+  --b-metric: clamp(1.875rem, 2.4vw, 2.4rem);
+
+  background: #ffffff;
+  color: var(--fg);
+}
+
+/** Тёмно-синяя акцентная панель: шапка первого экрана, блок демо, карусель. */
+.broker-theme .b-panel {
+  --bg: var(--b-navy);
+  --bg-elevated: #0e2038;
+  --fg: #f2f8fb;
+  --fg-muted: #9fb3c4;
+  --fg-subtle: #7d93a6;
+  --line: rgba(120, 190, 215, 0.2);
+  --line-strong: rgba(120, 190, 215, 0.36);
+  --accent: var(--b-cyan);
+  --accent-soft: rgba(20, 221, 238, 0.14);
+
+  background-color: var(--b-navy);
+  color: var(--fg);
+  /* Нативные чекбоксы и поля на панели должны рисоваться тёмными: иначе
+     браузер ставит светлый квадрат, и он виден заплаткой. */
+  color-scheme: dark;
 }
 
 /**
- * Светлая тема страницы.
+ * Неоновый градиент с линиями-сетью на тёмной панели.
  *
- * Мятный оттенок акцента на светлом фоне даёт 2.95:1 — не годится ни под
- * мелкий текст, ни под белую подпись на кнопке. Тёмно-зелёный даёт 4.6:1.
+ * Сетка нарисована двумя линейными градиентами, а не картинкой: на 1920 px
+ * растр пришлось бы отдавать в несколько сотен килобайт ради узора, который
+ * почти не виден.
  */
-html:not(.dark) .broker-theme {
-  --bg: #f6f8fb;
-  --bg-soft: #ffffff;
-  --bg-elevated: #ffffff;
-  --fg: #0b1321;
-  --fg-muted: #4a5c74;
-  --fg-subtle: #6b7c93;
-  --line: #e1e7ef;
-  --line-strong: #c9d3e0;
-  --accent: #0a8060;
-  --accent-soft: rgba(10, 128, 96, 0.1);
-  --accent-contrast: #ffffff;
-  --chart-1: #0a8060;
-  --surface-alpha: 100%;
+.broker-theme .b-glow {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.broker-theme .b-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(80% 120% at 85% 0%, rgba(20, 221, 238, 0.28) 0%, transparent 60%),
+    radial-gradient(60% 90% at 15% 100%, rgba(14, 140, 168, 0.32) 0%, transparent 65%);
+}
+.broker-theme .b-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(to right, rgba(140, 220, 240, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(140, 220, 240, 0.08) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(75% 75% at 50% 35%, #000 0%, transparent 100%);
 }
 
 @theme inline {
@@ -413,32 +461,34 @@ html:not(.dark) .broker-theme {
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
+  --color-accent-fill: var(--accent-fill);
 }
 
 /** Заголовок первого экрана страницы продукта. */
 @utility b-display {
   font-size: var(--b-display);
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.06;
   letter-spacing: -0.02em;
 }
 
 /**
- * Заголовок раздела. В обычном регистре, а не капсом: строка «Полный контроль
- * над партнёрским каналом» капсом читается заметно хуже и занимает вдвое
- * больше места.
+ * Заголовок раздела: жирный тёмный с короткой бирюзовой линией сверху.
+ *
+ * В обычном регистре, а не капсом: строка «Полный контроль над партнёрским
+ * каналом» капсом читается заметно хуже и занимает вдвое больше места.
  */
 @utility b-headline {
   font-size: var(--b-headline);
-  font-weight: 700;
-  line-height: 1.1;
+  font-weight: 800;
+  line-height: 1.12;
   letter-spacing: -0.02em;
 }
 
-/** Надзаголовок — единственное место, где акцент работает как текст. */
+/** Надзаголовок раздела — капсом, бирюзой, с номером. */
 @utility b-eyebrow {
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--accent);
@@ -447,10 +497,18 @@ html:not(.dark) .broker-theme {
 /** Мелкая подпись над таблицей или графиком. */
 @utility b-caption {
   font-size: 0.6875rem;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--fg-subtle);
+}
+
+/** Карточка со светлой заливкой и бирюзовой полосой слева. */
+@utility b-card {
+  background-color: var(--b-tint);
+  border: 1px solid transparent;
+  border-left: 3px solid var(--b-teal);
+  border-radius: 0.875rem;
 }
 
 @media (prefers-reduced-motion: reduce) {

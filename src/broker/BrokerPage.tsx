@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import type { ThemeMode } from '@/lib/hooks'
 import { useBrokerStore } from './store'
 import { Header } from './sections/Header'
 import { Hero } from './sections/Hero'
@@ -8,9 +7,11 @@ import { Features } from './sections/Features'
 import { Demo } from './sections/Demo'
 import { Screens } from './sections/Screens'
 import { Rollout } from './sections/Rollout'
-import { Faq } from './sections/Faq'
 import { Lead } from './sections/Lead'
 import { Footer } from './sections/Footer'
+import { StickyCta } from './sections/StickyCta'
+import { CookieNotice } from './sections/CookieNotice'
+import { initMetrika } from './tracking'
 import type { BrokerSectionId } from './types'
 
 /**
@@ -21,29 +22,54 @@ import type { BrokerSectionId } from './types'
  * конкретного.
  *
  * Обёртка `broker-theme` переопределяет токены темы для всего поддерева:
- * тёмно-синяя база вместо чёрной и мятный акцент. Класс, а не отдельная
- * сборка, — страницы делят один бандл и одну сборку стилей.
+ * фирменная палитра ТЗ — белый контент, тёмно-синие акцентные панели, циан на
+ * действиях. Класс, а не отдельная сборка: страницы делят один бандл.
  */
-export function BrokerPage({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme: () => void }) {
+export function BrokerPage() {
   const { content } = useBrokerStore()
 
+  // Счётчик поднимается один раз за жизнь страницы и только если его номер
+  // задан при сборке.
+  useEffect(() => {
+    initMetrika()
+  }, [])
+
   /*
-   * Заголовок и описание вкладки — свои.
+   * Заголовок, описание и Open Graph — свои.
    *
    * index.html один на обе страницы, и без этого и вкладка, и превью ссылки в
    * мессенджере рассказывали бы про студию, хотя человек открыл страницу про
-   * кабинеты. Разметку для поисковиков это не заменяет — до отдельного
-   * пререндера её тут и нет, — но вкладку и шеринг чинит.
+   * кабинеты. Предрендера здесь нет, поэтому краулеры, не исполняющие скрипты,
+   * увидят разметку главной — когда это станет важно, страницу нужно будет
+   * собирать отдельным входом, а не чинить в этом месте.
    */
   useEffect(() => {
+    const title = `${content.hero.titleLines.join(' ')} — ${content.brand.name}`
+    const previous: Array<[() => void]> = []
+
+    const setMeta = (selector: string, attribute: string, value: string) => {
+      const node = document.head.querySelector(selector)
+      if (!node) return
+      const before = node.getAttribute(attribute)
+      node.setAttribute(attribute, value)
+      previous.push([() => (before === null ? node.removeAttribute(attribute) : node.setAttribute(attribute, before))])
+    }
+
     const previousTitle = document.title
-    document.title = `${content.hero.titleLines.join(' ')} — ${content.brand.name}`
-    const meta = document.querySelector('meta[name="description"]')
-    const previousDescription = meta?.getAttribute('content') ?? null
-    meta?.setAttribute('content', content.hero.subtitle)
+    document.title = title
+    setMeta('meta[name="description"]', 'content', content.hero.subtitle)
+    setMeta('meta[property="og:title"]', 'content', title)
+    setMeta('meta[property="og:description"]', 'content', content.hero.subtitle)
+
+    const canonical = document.createElement('link')
+    canonical.rel = 'canonical'
+    canonical.href = `${window.location.origin}${window.location.pathname}`
+    document.head.appendChild(canonical)
+
     return () => {
       document.title = previousTitle
-      if (previousDescription !== null) meta?.setAttribute('content', previousDescription)
+      previous.forEach(([restore]) => restore())
+      canonical.remove()
     }
   }, [content])
 
@@ -54,13 +80,12 @@ export function BrokerPage({ theme, onToggleTheme }: { theme: ThemeMode; onToggl
     demo: () => <Demo />,
     screens: () => <Screens />,
     rollout: () => <Rollout />,
-    faq: () => <Faq />,
     lead: () => <Lead />,
   }
 
   return (
     <div className="broker-theme bg-bg text-fg">
-      <Header theme={theme} onToggleTheme={onToggleTheme} />
+      <Header />
       <main>
         {content.sections
           .filter((section) => section.visible)
@@ -69,6 +94,8 @@ export function BrokerPage({ theme, onToggleTheme }: { theme: ThemeMode; onToggl
           ))}
       </main>
       <Footer />
+      <StickyCta />
+      <CookieNotice />
     </div>
   )
 }

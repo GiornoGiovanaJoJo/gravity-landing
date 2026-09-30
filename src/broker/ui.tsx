@@ -52,13 +52,15 @@ const BUTTON_BASE =
   'group inline-flex shrink-0 items-center justify-center gap-2.5 rounded-xl text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-60'
 
 /**
- * Основная кнопка — акцентная плашка. Акцент на странице один, и он весь
- * отдан целевому действию: кроме кнопок мятным окрашены только надзаголовки
- * и первая полоса воронки, так что глаз находит «получить демо-доступ» сразу.
+ * Основная кнопка одного цвета на всей странице — циан с тёмно-синей подписью.
+ *
+ * Заливка берётся из --accent-fill, а не из --accent: цианом на белом можно
+ * заливать, но нельзя писать (1.5:1), поэтому текстовый акцент — бирюза. На
+ * тёмной панели они совпадают, и кнопка выглядит одинаково везде.
  */
 const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
-  primary: 'bg-accent text-accent-contrast hover:brightness-110 active:brightness-100',
-  outline: 'border border-accent/45 text-accent hover:border-accent hover:bg-accent-soft',
+  primary: 'bg-accent-fill text-[#08152b] hover:brightness-105 active:brightness-95',
+  outline: 'border border-accent/50 text-accent hover:border-accent hover:bg-accent-soft',
   ghost: 'text-fg-muted hover:bg-accent-soft hover:text-fg',
 }
 
@@ -67,6 +69,8 @@ const BUTTON_SIZES = {
   md: 'h-11 px-5',
   lg: 'h-12 px-6 text-[15px]',
 }
+
+/** Стрелка в подписи кнопки не нужна — цвет и так выделяет её на странице. */
 
 interface ButtonProps {
   variant?: ButtonVariant
@@ -123,19 +127,25 @@ export function Button({
 /* Поверхности и текст                                                 */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Карточка. `tint` — фирменная светло-голубая заливка с бирюзовой полосой
+ * слева; на тёмной панели она не используется, там работает обычная поверхность.
+ */
 export function Card({
   className,
   children,
+  tint = false,
   hoverable = false,
 }: {
   className?: string
   children: ReactNode
+  tint?: boolean
   hoverable?: boolean
 }) {
   return (
     <div
       className={cn(
-        'surface rounded-2xl',
+        tint ? 'b-card' : 'surface rounded-2xl',
         hoverable && 'transition-colors duration-300 hover:border-line-strong',
         className,
       )}
@@ -165,6 +175,9 @@ export function SectionHeading({
   return (
     <Reveal className={cn(align === 'center' ? 'mx-auto max-w-2xl text-center' : 'max-w-5xl', className)}>
       {eyebrow && <Eyebrow className="mb-3">{eyebrow}</Eyebrow>}
+      {/* Короткая бирюзовая линия над заголовком — приём из коммерческих
+          материалов: она отбивает раздел, не занимая отдельной строки. */}
+      <span aria-hidden="true" className="mb-4 block h-1 w-12 rounded-full bg-accent" />
       <h2 className="b-headline text-balance">{title}</h2>
       {subtitle && <p className="mt-3 max-w-xl text-sm text-fg-muted text-pretty">{subtitle}</p>}
     </Reveal>

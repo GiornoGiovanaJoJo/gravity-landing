@@ -23,7 +23,7 @@ export function Rollout() {
       <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {r.steps.map((step, i) => (
           <Reveal key={step.title} delayMs={i * 60}>
-            <Card className="h-full p-6">
+            <Card tint className="h-full p-6">
               <span className="text-base font-semibold text-accent tabular-nums">
                 {String(i + 1).padStart(2, '0')}
               </span>
@@ -36,7 +36,7 @@ export function Rollout() {
 
       {r.note && (
         <Reveal delayMs={120}>
-          <p className="mt-4 rounded-2xl border border-dashed border-line px-5 py-4 text-sm text-fg-muted text-pretty">
+          <p className="mt-4 rounded-xl border border-dashed border-line px-5 py-4 text-sm text-fg-muted text-pretty">
             {r.note}
           </p>
         </Reveal>

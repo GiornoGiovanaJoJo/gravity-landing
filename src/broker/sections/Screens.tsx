@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useBrokerStore } from '../store'
 import { cn } from '@/lib/cn'
 import { Icon } from '@/ui/Icon'
+import { track } from '../tracking'
 import { Reveal, Section, SectionHeading } from '../ui'
 
 /**
@@ -20,12 +21,16 @@ export function Screens() {
   const s = content.screens
   const [index, setIndex] = useState(0)
   const [failed, setFailed] = useState<Set<string>>(() => new Set())
+  const touchX = useRef<number | null>(null)
 
   if (s.items.length === 0) return null
 
   const total = s.items.length
   const current = s.items[index]
-  const go = (next: number) => setIndex((next + total) % total)
+  const go = (next: number) => {
+    setIndex((next + total) % total)
+    track('screens_slide')
+  }
 
   return (
     <Section id="screens">
@@ -33,7 +38,7 @@ export function Screens() {
 
       <Reveal className="mt-10">
         <div
-          className="relative"
+          className="b-panel relative rounded-3xl px-4 py-8 sm:px-8 sm:py-10"
           role="group"
           aria-roledescription="карусель"
           aria-label={s.title}
@@ -42,12 +47,25 @@ export function Screens() {
             if (e.key === 'ArrowLeft') go(index - 1)
             if (e.key === 'ArrowRight') go(index + 1)
           }}
+          onTouchStart={(e) => {
+            touchX.current = e.touches[0]?.clientX ?? null
+          }}
+          onTouchEnd={(e) => {
+            // Свайп на мобильном: кнопки со стрелками там не показываются, и
+            // без него листать можно только точками — по ним трудно попасть.
+            const start = touchX.current
+            touchX.current = null
+            if (start === null) return
+            const delta = (e.changedTouches[0]?.clientX ?? start) - start
+            if (Math.abs(delta) < 48) return
+            go(delta < 0 ? index + 1 : index - 1)
+          }}
         >
           <figure>
             <div className="relative flex items-stretch justify-center gap-4">
               <Ghost />
 
-              <div className="min-w-0 flex-1 rounded-2xl border border-accent/45 p-4 sm:p-5 lg:max-w-3xl">
+              <div className="min-w-0 flex-1 rounded-2xl border border-accent/40 p-4 sm:p-5 lg:max-w-3xl">
                 <p className="b-caption">{s.frameLabel}</p>
                 <div className="mt-4 overflow-hidden rounded-xl">
                   {current.imageUrl && !failed.has(current.imageUrl) ? (
@@ -55,6 +73,9 @@ export function Screens() {
                       src={current.imageUrl}
                       alt={current.title}
                       loading="lazy"
+                      decoding="async"
+                      width={1600}
+                      height={1000}
                       onError={() => setFailed((prev) => new Set(prev).add(current.imageUrl))}
                       className="block w-full rounded-xl border border-line"
                     />
@@ -97,7 +118,7 @@ export function Screens() {
                 onClick={() => setIndex(i)}
                 className={cn(
                   'h-2 rounded-pill transition-all',
-                  i === index ? 'w-7 bg-accent' : 'w-2 bg-chart-2/70 hover:bg-chart-2',
+                  i === index ? 'w-7 bg-accent' : 'w-2 bg-line-strong hover:bg-accent/60',
                 )}
               />
             ))}
@@ -113,7 +134,7 @@ function Ghost() {
   return (
     <div
       aria-hidden="true"
-      className="my-12 hidden w-[13%] shrink-0 rounded-2xl border border-line bg-bg-elevated/60 lg:block"
+      className="my-12 hidden w-[13%] shrink-0 rounded-2xl border border-line bg-bg-elevated/70 lg:block"
     />
   )
 }
