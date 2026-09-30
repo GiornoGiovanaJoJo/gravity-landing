@@ -40,16 +40,16 @@ export function Reveal({
 type ButtonVariant = 'primary' | 'outline' | 'ghost'
 
 const BUTTON_BASE =
-  'group inline-flex shrink-0 items-center justify-center gap-2.5 rounded-pill text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-60'
+  'group inline-flex shrink-0 items-center justify-center gap-2.5 rounded-xl text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-60'
 
 /**
- * Основная кнопка — контрастная плашка цветом текста: белая на тёмном фоне и
- * чёрная на светлом. Это самый читаемый вариант в обеих темах и он же держит
- * минимализм макета, где цвет остаётся только на стеклянных объектах.
+ * Основная кнопка — акцентная плашка. Акцент на странице один, и он весь
+ * отдан целевому действию: кроме кнопок мятным окрашены только надзаголовки
+ * и первая полоса воронки, так что глаз находит «получить демо-доступ» сразу.
  */
 const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
-  primary: 'bg-fg text-bg hover:opacity-90 active:opacity-100',
-  outline: 'hairline surface text-fg hover:border-line-strong hover:bg-accent-soft',
+  primary: 'bg-accent text-accent-contrast hover:brightness-110 active:brightness-100',
+  outline: 'border border-accent/45 text-accent hover:border-accent hover:bg-accent-soft',
   ghost: 'text-fg-muted hover:bg-accent-soft hover:text-fg',
 }
 
@@ -64,21 +64,6 @@ interface ButtonProps {
   size?: keyof typeof BUTTON_SIZES
   className?: string
   children: ReactNode
-  /** Кружок со стрелкой справа — фирменная деталь кнопок студии. */
-  arrow?: boolean
-}
-
-function ArrowDot({ variant }: { variant: ButtonVariant }) {
-  return (
-    <span
-      className={cn(
-        'flex size-6 items-center justify-center rounded-full transition-transform duration-200 group-hover:translate-x-0.5',
-        variant === 'primary' ? 'bg-bg/15' : 'bg-accent-soft',
-      )}
-    >
-      <Icon name="ArrowRight" className="size-3.5" />
-    </span>
-  )
 }
 
 export function LinkButton({
@@ -87,15 +72,15 @@ export function LinkButton({
   size = 'md',
   className,
   children,
-  arrow = false,
-}: ButtonProps & { href: string }) {
+  onClick,
+}: ButtonProps & { href: string; onClick?: () => void }) {
   return (
     <a
       href={href}
-      className={cn(BUTTON_BASE, BUTTON_VARIANTS[variant], BUTTON_SIZES[size], arrow && 'pr-2', className)}
+      onClick={onClick}
+      className={cn(BUTTON_BASE, BUTTON_VARIANTS[variant], BUTTON_SIZES[size], className)}
     >
       {children}
-      {arrow && <ArrowDot variant={variant} />}
     </a>
   )
 }
@@ -108,7 +93,6 @@ export function Button({
   className,
   disabled,
   children,
-  arrow = false,
 }: ButtonProps & {
   onClick?: () => void
   type?: 'button' | 'submit'
@@ -119,10 +103,9 @@ export function Button({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={cn(BUTTON_BASE, BUTTON_VARIANTS[variant], BUTTON_SIZES[size], arrow && 'pr-2', className)}
+      className={cn(BUTTON_BASE, BUTTON_VARIANTS[variant], BUTTON_SIZES[size], className)}
     >
       {children}
-      {arrow && <ArrowDot variant={variant} />}
     </button>
   )
 }
@@ -171,12 +154,10 @@ export function SectionHeading({
   className?: string
 }) {
   return (
-    <Reveal className={cn(align === 'center' ? 'mx-auto max-w-2xl text-center' : 'max-w-3xl', className)}>
-      {eyebrow && <Eyebrow className="mb-4">{eyebrow}</Eyebrow>}
-      <h2 className="text-[length:var(--text-h2)] leading-[1.05] font-light tracking-tight text-balance uppercase">
-        {title}
-      </h2>
-      {subtitle && <p className="mt-5 max-w-xl text-fg-muted text-pretty">{subtitle}</p>}
+    <Reveal className={cn(align === 'center' ? 'mx-auto max-w-2xl text-center' : 'max-w-5xl', className)}>
+      {eyebrow && <Eyebrow className="mb-3">{eyebrow}</Eyebrow>}
+      <h2 className="headline text-balance">{title}</h2>
+      {subtitle && <p className="mt-3 max-w-xl text-sm text-fg-muted text-pretty">{subtitle}</p>}
     </Reveal>
   )
 }
@@ -191,44 +172,9 @@ export function Section({
   children: ReactNode
 }) {
   return (
-    <section id={id} className={cn('relative mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-32', className)}>
+    <section id={id} className={cn('relative mx-auto w-full max-w-7xl px-5 py-16 sm:px-8', className)}>
       {children}
     </section>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* Лента                                                               */
-/* ------------------------------------------------------------------ */
-
-/**
- * Бесконечная лента на CSS-анимации: содержимое дублируется один раз, трек
- * уезжает на -50%, стык незаметен. При наведении лента замирает, чтобы её можно
- * было прочитать.
- */
-export function Marquee({
-  children,
-  durationSec = 44,
-  reverse = false,
-  className,
-}: {
-  children: ReactNode
-  durationSec?: number
-  reverse?: boolean
-  className?: string
-}) {
-  return (
-    <div className={cn('fade-edges-x overflow-hidden', className)}>
-      <div
-        className={cn('marquee-track', reverse ? 'animate-marquee-reverse' : 'animate-marquee')}
-        style={{ '--marquee-duration': `${durationSec}s` } as React.CSSProperties}
-      >
-        {children}
-        <div aria-hidden="true" className="flex">
-          {children}
-        </div>
-      </div>
-    </div>
   )
 }
 

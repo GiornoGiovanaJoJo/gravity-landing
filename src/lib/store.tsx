@@ -36,6 +36,20 @@ function mergeContent(base: LandingContent, patch: Partial<LandingContent> | nul
       ;(merged[key] as unknown) = value
     }
   }
+
+  /*
+   * Состав страницы пережил смену набора секций.
+   *
+   * В опубликованном документе может лежать список разделов прежней версии
+   * сайта (услуги, тарифы, отзывы). Просто подставить его нельзя: ни одного
+   * известного id в нём нет, и страница осталась бы пустой — причём не у нас на
+   * сборке, а у посетителя, сразу после первого же ответа API.
+   */
+  const known = new Set(base.sections.map((s) => s.id))
+  const kept = merged.sections.filter((s) => known.has(s.id))
+  const missing = base.sections.filter((s) => !kept.some((k) => k.id === s.id))
+  merged.sections = kept.length ? [...kept, ...missing] : base.sections
+
   return merged
 }
 

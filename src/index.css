@@ -8,53 +8,57 @@
 /* ------------------------------------------------------------------ */
 
 /**
- * Палитра студии: почти чёрная база, белый текст и единственный цветной приём —
- * иридесцентный перелив на объектах. Акцентом работает электрический синий,
- * он же держит контраст на светлой теме.
+ * Палитра кабинета: тёмно-синяя база вместо чёрной и единственный цветной
+ * акцент — мятный. Синий и сиреневый работают только на графиках: там нужно
+ * различать этапы воронки, и одного акцента на это не хватает.
+ *
+ * Чёрный фон здесь не годится: интерфейс, который показывается на странице,
+ * сам тёмно-синий, и на чёрном он выглядел бы вклеенным чужим скриншотом.
  */
 :root {
-  --accent-500: #3d5bff;
-  --accent-400: #6d84ff;
-  --accent-300: #9aa9ff;
+  /* Тёмный оттенок акцента выбран по контрасту: мятный #34d6a3 на светлом фоне
+     даёт 2.95:1 и не годится ни под мелкий текст, ни под белую подпись на
+     кнопке. #0a8060 даёт 4.6:1 и там, и там. */
+  --accent-500: #0a8060;
+  --accent-400: #34d6a3;
+  --accent-300: #6ee7bf;
 
-  /* Цвета перелива: ими окрашены стеклянные объекты. */
-  --irid-1: #ffb3d9;
-  --irid-2: #9db4ff;
-  --irid-3: #7ce8ff;
-  --irid-4: #ffd9a8;
+  /* Цвета серий на диаграммах. Идут от акцента к сиреневому: этапы должны
+     отличаться на глаз, но читаться как одна группа. */
+  --chart-1: var(--accent-500);
+  --chart-2: #3b6be8;
+  --chart-3: #4f52dd;
+  --chart-4: #7a5bd6;
 
   /* Светлая тема. */
-  --bg: #f7f7f9;
+  --bg: #f6f8fb;
   --bg-soft: #ffffff;
   --bg-elevated: #ffffff;
-  --fg: #0b0b0d;
-  --fg-muted: #4c4c57;
-  --fg-subtle: #6a6a77;
-  --line: #e2e2e8;
-  --line-strong: #cfcfd8;
+  --fg: #0b1321;
+  --fg-muted: #4a5c74;
+  --fg-subtle: #6b7c93;
+  --line: #e1e7ef;
+  --line-strong: #c9d3e0;
   --accent: var(--accent-500);
-  --accent-soft: rgba(61, 91, 255, 0.1);
+  --accent-soft: rgba(15, 165, 125, 0.1);
   --accent-contrast: #ffffff;
-  --glass: rgba(255, 255, 255, 0.72);
-  --glass-line: rgba(11, 11, 13, 0.12);
-  --surface-alpha: 88%;
+  --surface-alpha: 100%;
 }
 
 .dark {
-  --bg: #08080a;
-  --bg-soft: #0d0d10;
-  --bg-elevated: #121216;
-  --fg: #f4f4f6;
-  --fg-muted: #b0b0bd;
-  --fg-subtle: #90909f;
-  --line: rgba(255, 255, 255, 0.12);
-  --line-strong: rgba(255, 255, 255, 0.22);
+  --bg: #0b1321;
+  --bg-soft: #0f1829;
+  --bg-elevated: #121d33;
+  --fg: #e8eef8;
+  --fg-muted: #9aa9bf;
+  --fg-subtle: #6d7e97;
+  --line: rgba(140, 170, 215, 0.16);
+  --line-strong: rgba(140, 170, 215, 0.32);
   --accent: var(--accent-400);
-  --accent-soft: rgba(109, 132, 255, 0.16);
-  --accent-contrast: #05050a;
-  --glass: rgba(255, 255, 255, 0.05);
-  --glass-line: rgba(255, 255, 255, 0.16);
-  --surface-alpha: 82%;
+  --accent-soft: rgba(52, 214, 163, 0.12);
+  --accent-contrast: #07131f;
+  --chart-1: var(--accent-400);
+  --surface-alpha: 96%;
 }
 
 @theme inline {
@@ -73,15 +77,22 @@
   --color-accent-contrast: var(--accent-contrast);
   --color-accent-400: var(--accent-400);
   --color-accent-500: var(--accent-500);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
 
-  --radius-card: 1.5rem;
+  --radius-card: 1rem;
   --radius-pill: 999px;
 
-  /* Крупная лёгкая типографика — основной приём макета. */
-  --text-display: clamp(2.75rem, 8.2vw, 7.5rem);
-  --text-h1: clamp(2rem, 5vw, 4rem);
-  --text-h2: clamp(1.75rem, 3.6vw, 3rem);
-  --text-lead: clamp(0.95rem, 1.15vw, 1.15rem);
+  /* Типографика макета: плотные жирные заголовки в обычном регистре. Капс на
+     заголовке такой длины («Полный контроль над партнёрским каналом») читается
+     заметно хуже и занимает вдвое больше места. */
+  --text-display: clamp(2.5rem, 5.4vw, 4.5rem);
+  --text-h1: clamp(2rem, 4vw, 3.25rem);
+  --text-h2: clamp(1.75rem, 3vw, 2.6rem);
+  --text-h3: clamp(2rem, 2.6vw, 2.6rem);
+  --text-lead: clamp(1rem, 1.1vw, 1.125rem);
 }
 
 @layer base {
@@ -121,143 +132,51 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Иридесцентный материал                                              */
-/* ------------------------------------------------------------------ */
-
-/**
- * Угол перелива анимируется через @property — иначе браузер не умеет плавно
- * интерполировать градиент и объект «дёргался» бы скачками.
- */
-@property --irid-angle {
-  syntax: '<angle>';
-  initial-value: 0deg;
-  inherits: false;
-}
-
-/**
- * Слиток: тёмное стеклянное тело с радужной дисперсией по кромке.
- *
- * Ключ к материалу — разделение слоёв. Тело почти чёрное, иначе объект теряет
- * «вес»; перелив живёт отдельным слоем и маской прижат к краям — именно так
- * ведёт себя настоящее стекло, где радуга появляется на изгибе, а не в центре.
- */
-@utility iridescent-slab {
-  position: relative;
-  border-radius: 34%;
-  /* Нижний слой — сплошной перелив; тело объекта ляжет поверх и оставит от него
-     только кромку. Приём вместо mask-composite: тот не переживает минификацию
-     шорткатов и молча превращается в заливку. */
-  background: conic-gradient(
-    from calc(var(--irid-angle) + var(--seed, 0deg)),
-    var(--irid-1),
-    var(--irid-2),
-    var(--irid-3),
-    var(--irid-4),
-    var(--irid-1)
-  );
-  filter: saturate(1.5) contrast(1.05);
-  box-shadow: 0 46px 100px -34px rgba(0, 0, 0, 0.95);
-  animation: irid-shift 16s linear infinite;
-
-  /* Тело: тёмное стекло с бликом сверху и подсветкой снизу. */
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 4.5%;
-    border-radius: 32%;
-    background:
-      linear-gradient(122deg, transparent 30%, rgba(255, 255, 255, 0.5) 38%, transparent 46%),
-      radial-gradient(65% 50% at 32% 12%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 60%),
-      radial-gradient(130% 110% at 70% 85%, #17171d 0%, #0a0a0e 45%, #050507 100%);
-    box-shadow:
-      inset 0 1px 1px rgba(255, 255, 255, 0.3),
-      inset 0 -40px 70px rgba(0, 0, 0, 0.6);
-  }
-}
-
-/** Сфера того же материала. */
-@utility iridescent-orb {
-  position: relative;
-  border-radius: 50%;
-  background: conic-gradient(
-    from calc(var(--irid-angle) + var(--seed, 0deg)),
-    var(--irid-2),
-    var(--irid-3),
-    var(--irid-1),
-    var(--irid-4),
-    var(--irid-2)
-  );
-  filter: saturate(1.5) contrast(1.05);
-  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.9);
-  animation: irid-shift 22s linear infinite reverse;
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 6%;
-    border-radius: 50%;
-    background:
-      radial-gradient(60% 55% at 32% 20%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 60%),
-      radial-gradient(120% 120% at 62% 82%, #1b1b22 0%, #0a0a0e 55%, #060608 100%);
-    box-shadow:
-      inset 0 2px 2px rgba(255, 255, 255, 0.28),
-      inset 0 -16px 36px rgba(0, 0, 0, 0.7);
-  }
-}
-
-@keyframes irid-shift {
-  to {
-    --irid-angle: 360deg;
-  }
-}
-
-@keyframes drift {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-  }
-  50% {
-    transform: translate3d(0, -18px, 0) rotate(4deg);
-  }
-}
-
-@utility animate-drift {
-  animation: drift 14s ease-in-out infinite;
-}
-
-@utility animate-drift-slow {
-  animation: drift 22s ease-in-out infinite;
-}
-
-/* ------------------------------------------------------------------ */
 /* Типографика и поверхности                                           */
 /* ------------------------------------------------------------------ */
 
-/** Крупный заголовок: лёгкое начертание и широкий трекинг, как у референса. */
+/** Заголовок первого экрана. */
 @utility display {
   font-size: var(--text-display);
-  font-weight: 300;
-  line-height: 0.92;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.02em;
 }
 
+/** Заголовок секции. */
+@utility headline {
+  font-size: var(--text-h2);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+/**
+ * Надзаголовок — единственное место, где акцентный цвет работает как текст.
+ * Он же несёт нумерацию разделов («01 · Аналитика канала»), поэтому должен
+ * читаться как указатель, а не как подпись.
+ */
 @utility eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/** Мелкая подпись над таблицей или графиком. */
+@utility caption-label {
   font-size: 0.6875rem;
   font-weight: 500;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--fg-subtle);
 }
 
-/**
- * Поверхность карточки. Полупрозрачность даёт глубину, но под ней всегда есть
- * плотный слой: текст обязан читаться поверх любого фонового объекта.
- */
+/** Поверхность карточки. */
 @utility surface {
   background-color: color-mix(in oklab, var(--bg-elevated) var(--surface-alpha), transparent);
   border: 1px solid var(--line);
-  backdrop-filter: blur(16px);
 }
 
 @utility hairline {
@@ -269,80 +188,6 @@
   -ms-overflow-style: none;
   &::-webkit-scrollbar {
     display: none;
-  }
-}
-
-@utility fade-edges-x {
-  mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-  -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-}
-
-/** Подложка под текстом поверх фоновых объектов — гарантия контраста. */
-@utility scrim {
-  background: linear-gradient(
-    to bottom,
-    var(--bg) 0%,
-    color-mix(in oklab, var(--bg) 88%, transparent) 46%,
-    color-mix(in oklab, var(--bg) 55%, transparent) 74%,
-    transparent 100%
-  );
-
-  @media (width >= 1024px) {
-    background: linear-gradient(
-      to right,
-      var(--bg) 0%,
-      color-mix(in oklab, var(--bg) 90%, transparent) 34%,
-      color-mix(in oklab, var(--bg) 50%, transparent) 58%,
-      transparent 80%
-    );
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/* Анимации                                                            */
-/* ------------------------------------------------------------------ */
-
-@keyframes marquee-x {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes marquee-x-reverse {
-  from {
-    transform: translateX(-50%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-@keyframes dash-flow {
-  to {
-    stroke-dashoffset: -220;
-  }
-}
-
-@utility animate-marquee {
-  animation: marquee-x var(--marquee-duration, 44s) linear infinite;
-}
-
-@utility animate-marquee-reverse {
-  animation: marquee-x-reverse var(--marquee-duration, 44s) linear infinite;
-}
-
-@utility animate-dash {
-  animation: dash-flow 7s linear infinite;
-}
-
-@utility marquee-track {
-  display: flex;
-  width: max-content;
-  &:hover {
-    animation-play-state: paused;
   }
 }
 

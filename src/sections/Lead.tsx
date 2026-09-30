@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { submitLead, type LeadResult } from '@/lib/api'
 import { useStore } from '@/lib/store'
 import { Icon } from '@/ui/Icon'
-import { GlassOrb } from '@/ui/iridescent'
 import { Button, Card, Eyebrow, Field, Modal, Reveal, Section } from '@/ui/primitives'
 
 /**
@@ -111,7 +110,7 @@ function LeadForm({ compact = false }: { compact?: boolean }) {
         </p>
       )}
 
-      <Button type="submit" size="lg" className="w-full" disabled={sending || !name || !isPhoneComplete(phone)} arrow={!sending}>
+      <Button type="submit" size="lg" className="w-full" disabled={sending || !name || !isPhoneComplete(phone)}>
         {sending ? 'Отправляем…' : lead.submitLabel}
       </Button>
 
@@ -127,15 +126,11 @@ export function Lead() {
 
   return (
     <Section id="lead" className="border-t border-line">
-      <GlassOrb className="top-10 left-1/2 hidden -translate-x-1/2 lg:block" size={110} seed={300} parallax={20} />
-
       <div className="relative grid items-start gap-10 lg:grid-cols-2 lg:gap-20">
         <div>
           <Reveal>
             <Eyebrow>{lead.eyebrow}</Eyebrow>
-            <h2 className="mt-5 text-[length:var(--text-h2)] leading-[1.05] font-light tracking-tight text-balance uppercase">
-              {lead.title}
-            </h2>
+            <h2 className="headline mt-3 text-balance">{lead.title}</h2>
             <p className="mt-5 max-w-md text-fg-muted text-pretty">{lead.text}</p>
           </Reveal>
 
