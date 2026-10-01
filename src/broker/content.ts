@@ -167,6 +167,12 @@ export const brokerContent: BrokerLandingContent = {
         imageUrlDark: '/site/screens/catalog-dark.webp',
       },
       {
+        title: 'Проекты и планировки',
+        text: 'Жилые комплексы, корпуса и типовые планировки: правка планировки доходит до всех её квартир сразу.',
+        imageUrl: '/site/screens/projects.webp',
+        imageUrlDark: '/site/screens/projects-dark.webp',
+      },
+      {
         title: 'Карточка лота',
         text: 'Планировка, условия покупки, ипотечный расчёт и комиссия брокера в одном окне.',
         imageUrl: '/site/screens/lot.webp',
