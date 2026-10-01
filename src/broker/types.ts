@@ -128,8 +128,14 @@ export interface DemoContent {
 export interface ScreenItem {
   title: string
   text: string
-  /** Адрес картинки. Пусто — рисуется рамка с подписью. */
+  /** Адрес снимка для светлой темы. Пусто — рисуется рамка с подписью. */
   imageUrl: string
+  /**
+   * Снимок того же экрана в тёмной теме. Кабинет умеет обе, и показывать
+   * светлый интерфейс на тёмной странице значит выдавать чужую картинку за
+   * свою. Пусто — показывается светлый.
+   */
+  imageUrlDark: string
 }
 
 export interface ScreensContent {

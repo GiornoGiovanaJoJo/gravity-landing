@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import type { ThemeMode } from '@/lib/hooks'
 import { useBrokerStore } from './store'
 import { Header } from './sections/Header'
 import { Hero } from './sections/Hero'
@@ -25,7 +26,7 @@ import type { BrokerSectionId } from './types'
  * фирменная палитра ТЗ — белый контент, тёмно-синие акцентные панели, циан на
  * действиях. Класс, а не отдельная сборка: страницы делят один бандл.
  */
-export function BrokerPage() {
+export function BrokerPage({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme: () => void }) {
   const { content } = useBrokerStore()
 
   // Счётчик поднимается один раз за жизнь страницы и только если его номер
@@ -78,14 +79,14 @@ export function BrokerPage() {
     metrics: () => <Metrics />,
     features: () => <Features />,
     demo: () => <Demo />,
-    screens: () => <Screens />,
+    screens: () => <Screens theme={theme} />,
     rollout: () => <Rollout />,
     lead: () => <Lead />,
   }
 
   return (
     <div className="broker-theme bg-bg text-fg">
-      <Header />
+      <Header theme={theme} onToggleTheme={onToggleTheme} />
       <main>
         {content.sections
           .filter((section) => section.visible)

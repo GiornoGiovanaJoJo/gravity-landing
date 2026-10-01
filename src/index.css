@@ -404,6 +404,44 @@
   color: var(--fg);
 }
 
+/**
+ * Тёмная тема страницы.
+ *
+ * Не инверсия светлой: фон — тот же фирменный тёмно-синий, что у акцентных
+ * панелей, поэтому панели на нём теряют границу и различаются только свечением.
+ * Циан на тёмном читается и текстом, поэтому оба акцентных токена совпадают.
+ */
+.dark .broker-theme {
+  --bg: #08152b;
+  --bg-soft: #0e2038;
+  --bg-elevated: #0e2038;
+  --fg: #f2f8fb;
+  --fg-muted: #9fb3c4;
+  --fg-subtle: #7d93a6;
+  --line: rgba(120, 190, 215, 0.2);
+  --line-strong: rgba(120, 190, 215, 0.36);
+  --accent: var(--b-cyan);
+  --accent-soft: rgba(20, 221, 238, 0.14);
+  --accent-contrast: var(--b-navy);
+  --chart-1: var(--b-cyan);
+  --b-tint: #0e2038;
+
+  background: var(--bg);
+  color-scheme: dark;
+}
+
+/* Карточка с полосой на тёмном фоне: заливка почти сливается с фоном, поэтому
+   ей нужна ещё и рамка — иначе видна одна полоса слева. */
+.dark .broker-theme .b-card {
+  border-color: var(--line);
+}
+
+/* По той же причине рамка нужна и акцентной панели: её фон совпадает с фоном
+   страницы, и без границы блок расплывается. */
+.dark .broker-theme .b-panel {
+  border: 1px solid var(--line);
+}
+
 /** Тёмно-синяя акцентная панель: шапка первого экрана, блок демо, карусель. */
 .broker-theme .b-panel {
   --bg: var(--b-navy);
@@ -439,6 +477,9 @@
   content: '';
   position: absolute;
   inset: 0;
+  /* Радиус наследуется: слой лежит ниже фона родителя, и overflow его не
+     обрезает — без этого свечение вылезает прямыми углами за скругления. */
+  border-radius: inherit;
   z-index: -1;
   background:
     radial-gradient(80% 120% at 85% 0%, rgba(20, 221, 238, 0.28) 0%, transparent 60%),
@@ -448,6 +489,7 @@
   content: '';
   position: absolute;
   inset: 0;
+  border-radius: inherit;
   z-index: -1;
   background-image:
     linear-gradient(to right, rgba(140, 220, 240, 0.08) 1px, transparent 1px),

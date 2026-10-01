@@ -146,37 +146,49 @@ export const brokerContent: BrokerLandingContent = {
   screens: {
     eyebrow: '03 · Интерфейс',
     title: 'Кабинет изнутри',
-    frameLabel: 'Кабинет застройщика / демонстрационный интерфейс',
+    frameLabel: 'Кабинет застройщика / демонстрационные данные',
     items: [
       {
         title: 'Обзор канала',
         text: 'Что требует решения сегодня: заявки на фиксацию, истекающие брони, сделки без движения.',
         imageUrl: '/site/screens/overview.webp',
+        imageUrlDark: '/site/screens/overview-dark.webp',
       },
       {
         title: 'Подключение партнёров',
         text: 'Приглашение брокера по e-mail, анкета, аккредитация и открытие проектов.',
         imageUrl: '/site/screens/partners.webp',
+        imageUrlDark: '/site/screens/partners-dark.webp',
       },
       {
         title: 'Каталог и шахматка',
-        text: 'Проекты, корпуса, планировки и статусы лотов — то, из чего брокер собирает подборку.',
+        text: 'Остатки, цены и вознаграждение по каждому лоту — то, из чего брокер собирает подборку.',
         imageUrl: '/site/screens/catalog.webp',
+        imageUrlDark: '/site/screens/catalog-dark.webp',
+      },
+      {
+        title: 'Карточка лота',
+        text: 'Планировка, условия покупки, ипотечный расчёт и комиссия брокера в одном окне.',
+        imageUrl: '/site/screens/lot.webp',
+        imageUrlDark: '/site/screens/lot-dark.webp',
       },
       {
         title: 'Комиссии и выплаты',
         text: 'Правила вознаграждения, начисления, акты и реестры для бухгалтерии.',
         imageUrl: '/site/screens/commissions.webp',
+        imageUrlDark: '/site/screens/commissions-dark.webp',
       },
       {
         title: 'Аналитика канала',
         text: 'Воронка от фиксации до выплаты, конверсия и результаты агентств.',
         imageUrl: '/site/screens/analytics.webp',
+        imageUrlDark: '/site/screens/analytics-dark.webp',
       },
       {
         title: 'Настройки',
         text: 'Правила фиксации и брони, словарь этапов, требования к аккредитации — без разработчика.',
         imageUrl: '/site/screens/settings.webp',
+        imageUrlDark: '/site/screens/settings-dark.webp',
       },
     ],
   },

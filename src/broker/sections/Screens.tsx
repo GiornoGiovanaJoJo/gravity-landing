@@ -1,12 +1,17 @@
 import { useRef, useState } from 'react'
 import { useBrokerStore } from '../store'
 import { cn } from '@/lib/cn'
+import type { ThemeMode } from '@/lib/hooks'
 import { Icon } from '@/ui/Icon'
 import { track } from '../tracking'
 import { Reveal, Section, SectionHeading } from '../ui'
 
 /**
  * Экраны кабинета.
+ *
+ * Рамка карусели следует теме страницы, а не сделана акцентной панелью: внутри
+ * лежит снимок кабинета в той же теме, и тёмная подложка под светлым снимком
+ * (или наоборот) выдавала бы его за чужую картинку.
  *
  * Карусель, а не сетка: экранов шесть, и в сетке каждый становится марочкой,
  * на которой ничего не разобрать. Здесь один большой, а по краям — силуэты
@@ -16,7 +21,7 @@ import { Reveal, Section, SectionHeading } from '../ui'
  * намеренно: человек рассматривает снимок интерфейса в своём темпе, а
  * уезжающий из-под взгляда экран раздражает.
  */
-export function Screens() {
+export function Screens({ theme }: { theme: ThemeMode }) {
   const { content } = useBrokerStore()
   const s = content.screens
   const [index, setIndex] = useState(0)
@@ -27,6 +32,9 @@ export function Screens() {
 
   const total = s.items.length
   const current = s.items[index]
+  // Снимок берётся под тему страницы: кабинет умеет обе, и светлый интерфейс
+  // на тёмной странице читается как вклеенная чужая картинка.
+  const shot = (theme === 'dark' && current.imageUrlDark) || current.imageUrl
   const go = (next: number) => {
     setIndex((next + total) % total)
     track('screens_slide')
@@ -38,7 +46,7 @@ export function Screens() {
 
       <Reveal className="mt-10">
         <div
-          className="b-panel relative rounded-3xl px-4 py-8 sm:px-8 sm:py-10"
+          className="relative rounded-3xl border border-line bg-bg-soft px-4 py-8 sm:px-8 sm:py-10"
           role="group"
           aria-roledescription="карусель"
           aria-label={s.title}
@@ -68,15 +76,16 @@ export function Screens() {
               <div className="min-w-0 flex-1 rounded-2xl border border-accent/40 p-4 sm:p-5 lg:max-w-3xl">
                 <p className="b-caption">{s.frameLabel}</p>
                 <div className="mt-4 overflow-hidden rounded-xl">
-                  {current.imageUrl && !failed.has(current.imageUrl) ? (
+                  {shot && !failed.has(shot) ? (
                     <img
-                      src={current.imageUrl}
+                      key={shot}
+                      src={shot}
                       alt={current.title}
                       loading="lazy"
                       decoding="async"
                       width={1600}
                       height={1000}
-                      onError={() => setFailed((prev) => new Set(prev).add(current.imageUrl))}
+                      onError={() => setFailed((prev) => new Set(prev).add(shot))}
                       className="block w-full rounded-xl border border-line"
                     />
                   ) : (
