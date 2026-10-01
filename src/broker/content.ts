@@ -1,6 +1,15 @@
 import type { BrokerLandingContent } from './types'
 
 /**
+ * Путь к файлу из public.
+ *
+ * Сайт собирается дважды: отдельным доменом (база «/») и встроенным в CRM под
+ * «/site/». Жёсткий префикс в адресе снимка ломает ровно одну из этих сборок —
+ * и ломал: на проде карусель показывала рамки-заглушки вместо кабинета.
+ */
+const asset = (file: string) => `${import.meta.env.BASE_URL}${file}`
+
+/**
  * Контент страницы про кабинеты застройщика и брокера.
  *
  * Страница про один продукт — кабинеты застройщика и брокера. Разговор идёт от
@@ -151,50 +160,50 @@ export const brokerContent: BrokerLandingContent = {
       {
         title: 'Обзор канала',
         text: 'Что требует решения сегодня: заявки на фиксацию, истекающие брони, сделки без движения.',
-        imageUrl: '/site/screens/overview.webp',
-        imageUrlDark: '/site/screens/overview-dark.webp',
+        imageUrl: asset('screens/overview.webp'),
+        imageUrlDark: asset('screens/overview-dark.webp'),
       },
       {
         title: 'Подключение партнёров',
         text: 'Приглашение брокера по e-mail, анкета, аккредитация и открытие проектов.',
-        imageUrl: '/site/screens/partners.webp',
-        imageUrlDark: '/site/screens/partners-dark.webp',
+        imageUrl: asset('screens/partners.webp'),
+        imageUrlDark: asset('screens/partners-dark.webp'),
       },
       {
         title: 'Каталог и шахматка',
         text: 'Остатки, цены и вознаграждение по каждому лоту — то, из чего брокер собирает подборку.',
-        imageUrl: '/site/screens/catalog.webp',
-        imageUrlDark: '/site/screens/catalog-dark.webp',
+        imageUrl: asset('screens/catalog.webp'),
+        imageUrlDark: asset('screens/catalog-dark.webp'),
       },
       {
         title: 'Проекты и планировки',
         text: 'Жилые комплексы, корпуса и типовые планировки: правка планировки доходит до всех её квартир сразу.',
-        imageUrl: '/site/screens/projects.webp',
-        imageUrlDark: '/site/screens/projects-dark.webp',
+        imageUrl: asset('screens/projects.webp'),
+        imageUrlDark: asset('screens/projects-dark.webp'),
       },
       {
         title: 'Карточка лота',
         text: 'Планировка, условия покупки, ипотечный расчёт и комиссия брокера в одном окне.',
-        imageUrl: '/site/screens/lot.webp',
-        imageUrlDark: '/site/screens/lot-dark.webp',
+        imageUrl: asset('screens/lot.webp'),
+        imageUrlDark: asset('screens/lot-dark.webp'),
       },
       {
         title: 'Комиссии и выплаты',
         text: 'Правила вознаграждения, начисления, акты и реестры для бухгалтерии.',
-        imageUrl: '/site/screens/commissions.webp',
-        imageUrlDark: '/site/screens/commissions-dark.webp',
+        imageUrl: asset('screens/commissions.webp'),
+        imageUrlDark: asset('screens/commissions-dark.webp'),
       },
       {
         title: 'Аналитика канала',
         text: 'Воронка от фиксации до выплаты, конверсия и результаты агентств.',
-        imageUrl: '/site/screens/analytics.webp',
-        imageUrlDark: '/site/screens/analytics-dark.webp',
+        imageUrl: asset('screens/analytics.webp'),
+        imageUrlDark: asset('screens/analytics-dark.webp'),
       },
       {
         title: 'Настройки',
         text: 'Правила фиксации и брони, словарь этапов, требования к аккредитации — без разработчика.',
-        imageUrl: '/site/screens/settings.webp',
-        imageUrlDark: '/site/screens/settings-dark.webp',
+        imageUrl: asset('screens/settings.webp'),
+        imageUrlDark: asset('screens/settings-dark.webp'),
       },
     ],
   },
