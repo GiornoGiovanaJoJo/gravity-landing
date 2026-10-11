@@ -11,9 +11,17 @@ export function Footer() {
     ...footer.links,
   ].filter(Boolean) as { label: string; href: string }[]
 
+  // Пока контакты не заполнены в админке, колонка не рисуется: заголовок
+  // «Контакты» над пустотой читается как недоделанный сайт.
+  const hasContacts = Boolean(contacts.phone || contacts.email || contacts.telegram || contacts.address)
+
   return (
     <footer className="border-t border-line">
-      <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 sm:px-8 lg:grid-cols-[1.5fr_1fr_1fr]">
+      <div
+        className={`mx-auto grid max-w-7xl gap-12 px-5 py-16 sm:px-8 ${
+          hasContacts ? 'lg:grid-cols-[1.5fr_1fr_1fr]' : 'lg:grid-cols-[1.5fr_1fr]'
+        }`}
+      >
         <div>
           <Logo name={brand.name} />
           <p className="mt-5 max-w-sm text-sm text-fg-muted text-pretty">{footer.slogan}</p>
@@ -48,7 +56,7 @@ export function Footer() {
           </ul>
         </nav>
 
-        <div>
+        <div className={hasContacts ? '' : 'hidden'}>
           <h2 className="eyebrow">Контакты</h2>
           <ul className="mt-5 space-y-3 text-sm text-fg-muted">
             {contacts.phone && (

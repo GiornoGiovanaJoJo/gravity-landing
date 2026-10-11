@@ -1,53 +1,47 @@
 import { useStore } from '@/lib/store'
-import { Marquee, Reveal, SectionHeading } from '@/ui/primitives'
-import type { ClientItem } from '@/types'
+import { Reveal, Section } from '@/ui/primitives'
 
-/** Логотипы клиентов. Пока логотип не загружен — показываем название. */
+/**
+ * Логотипы клиентов.
+ *
+ * Плашки светлые даже в тёмной теме: логотипы присылают в вариантах под белый
+ * фон, и на тёмном у половины из них пропадает контур. Подкрашивать чужой знак
+ * под свою тему нельзя — это уже не их логотип.
+ *
+ * Раздел целиком исчезает, пока логотипов нет: пустая строка «Клиенты» хуже,
+ * чем её отсутствие.
+ */
 export function Clients() {
   const { content } = useStore()
-  const { eyebrow, title, subtitle, items } = content.clients
-  if (!items.length) return null
+  const c = content.clients
+  const items = c.items.filter((item) => item.logoUrl)
 
-  const half = Math.ceil(items.length / 2)
+  if (items.length === 0) return null
 
   return (
-    <section id="clients" className="py-20 sm:py-24">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <SectionHeading eyebrow={eyebrow} title={title} subtitle={subtitle} />
-      </div>
-
-      <Reveal className="mt-12 space-y-3">
-        <Marquee durationSec={64}>
-          <Row items={items.slice(0, half)} />
-        </Marquee>
-        <Marquee durationSec={72} reverse>
-          <Row items={items.slice(half)} />
-        </Marquee>
+    <Section id="clients" className="border-t border-line">
+      <Reveal>
+        <p className="eyebrow">{c.eyebrow}</p>
       </Reveal>
-    </section>
-  )
-}
 
-function Row({ items }: { items: ClientItem[] }) {
-  return (
-    <div className="flex items-center gap-3 pr-3">
-      {items.map((client, i) => (
-        <div
-          key={`${client.name}-${i}`}
-          className="surface flex h-24 w-48 shrink-0 items-center justify-center rounded-card px-6"
-        >
-          {client.logoUrl ? (
-            <img
-              src={client.logoUrl}
-              alt={client.name}
-              loading="lazy"
-              className="max-h-10 w-auto opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0"
-            />
-          ) : (
-            <span className="text-center text-xs text-fg-subtle">{client.name}</span>
-          )}
-        </div>
-      ))}
-    </div>
+      <Reveal delayMs={80}>
+        <ul className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          {items.map((item) => (
+            <li
+              key={item.name}
+              className="flex h-24 items-center justify-center rounded-xl border border-line bg-white px-5"
+            >
+              <img
+                src={item.logoUrl}
+                alt={item.name}
+                loading="lazy"
+                decoding="async"
+                className="max-h-10 w-full object-contain"
+              />
+            </li>
+          ))}
+        </ul>
+      </Reveal>
+    </Section>
   )
 }

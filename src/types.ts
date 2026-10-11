@@ -1,30 +1,26 @@
 /**
- * Контракт контента сайта студии.
+ * Контракт контента главной страницы.
  *
  * Тот же документ описан zod-схемой на сервере
  * (server/src/modules/landing/schema.ts) — он приходит из
  * GET /api/public/landing и редактируется админом платформы. Всё, что здесь
  * объявлено, обязано иметь дефолт в content.ts: сайт должен полностью
  * работать даже когда CRM недоступна.
+ *
+ * Страница рассказывает о двух направлениях компании, и разделы названы так,
+ * чтобы их нельзя было спутать: «Индивидуальная разработка» — делаем под
+ * задачу, «Готовые решения» — берёте и пользуетесь. Прежние «IT-решения для
+ * вашего бизнеса» и «Наши продукты» звучали как одно и то же дважды.
  */
 
 export type SectionId =
   | 'hero'
-  | 'ticker'
-  | 'services'
-  | 'about'
-  | 'process'
-  | 'industries'
-  | 'product'
-  | 'plans'
-  | 'cta'
-  | 'reviews'
+  | 'development'
+  | 'quick'
+  | 'products'
   | 'clients'
-  | 'faq'
+  | 'letters'
   | 'lead'
-
-/** Имя иконки из lucide-react. Резолвится через карту в ui/Icon.tsx. */
-export type IconName = string
 
 export interface LinkItem {
   label: string
@@ -40,132 +36,74 @@ export interface Brand {
   formSlug: string
 }
 
-export interface HeroContent {
-  eyebrow: string
-  /** Заголовок разбит на строки: набирается крупно, перенос задаётся вручную. */
-  titleLines: string[]
-  subtitle: string
-  primaryCta: string
-  secondaryCta: string
-  note: string
-}
-
-export interface ServiceItem {
-  icon: IconName
-  title: string
-  text: string
-  /** Крупная карточка занимает две колонки в сетке услуг. */
-  wide?: boolean
-}
-
-export interface ServicesContent {
-  eyebrow: string
-  title: string
-  subtitle: string
-  items: ServiceItem[]
-}
-
-export interface AboutMetric {
-  value: number
-  suffix: string
-  label: string
-}
-
-export interface AboutContent {
+/**
+ * Продукт в карусели первого экрана.
+ *
+ * Первый экран показывает по одному продукту за раз: витрина, где всё сразу,
+ * не продаёт ничего конкретного, а человек приходит за чем-то одним.
+ */
+export interface HeroSlide {
+  /** Надпись над заголовком; номер подставляется автоматически. */
   eyebrow: string
   title: string
   text: string
-  /** Строка о команде — здесь же имя основателя, один раз на весь сайт. */
-  signature: string
-  metrics: AboutMetric[]
-}
-
-export interface ProcessStep {
-  title: string
-  text: string
-  /** Ориентировочный срок этапа. */
-  duration: string
-}
-
-export interface ProcessContent {
-  eyebrow: string
-  title: string
-  subtitle: string
-  steps: ProcessStep[]
-}
-
-export interface IndustryItem {
-  icon: IconName
-  title: string
-  text: string
-}
-
-export interface IndustriesContent {
-  eyebrow: string
-  title: string
-  subtitle: string
-  items: IndustryItem[]
-}
-
-/** Идентификатор HTML-мокапа, который рисуется во вкладке продукта. */
-export type MockKind = 'kanban' | 'automation' | 'call' | 'industry'
-
-export interface ProductTab {
-  id: string
-  label: string
-  icon: IconName
-  title: string
-  text: string
-  bullets: string[]
-  mock: MockKind
-}
-
-export interface ProductContent {
-  eyebrow: string
-  title: string
-  subtitle: string
-  primaryCta: string
-  secondaryCta: string
-  tabs: ProductTab[]
-}
-
-export interface PlanItem {
-  name: string
-  description: string
-  price: string
-  features: string[]
-  highlighted: boolean
   cta: string
+  /** Куда ведёт кнопка. Пусто — к форме заявки. */
+  href: string
+  /** Снимок продукта. Пусто — рисуется рамка с подписью. */
+  imageUrl: string
+  imageUrlDark: string
 }
 
-export interface PlansContent {
+export interface HeroContent {
+  slides: HeroSlide[]
+}
+
+/** Направление разработки: нумерованная карточка в сетке. */
+export interface DevelopmentItem {
+  title: string
+  text: string
+}
+
+export interface DevelopmentContent {
   eyebrow: string
   title: string
   subtitle: string
-  note: string
-  items: PlanItem[]
-}
-
-export interface CtaContent {
-  title: string
-  text: string
+  items: DevelopmentItem[]
+  /** Две кнопки под сеткой: обсудить разработку и уйти к готовым решениям. */
   primaryCta: string
   secondaryCta: string
 }
 
-export interface ReviewItem {
-  author: string
-  role: string
-  company: string
+export interface QuickContent {
+  eyebrow: string
+  title: string
   text: string
-  logoUrl: string
+  submitLabel: string
+  /** Мессенджеры и соцсети: показывается только заполненное. */
+  channels: LinkItem[]
 }
 
-export interface ReviewsContent {
+/** Готовый продукт в карусели. */
+export interface ProductItem {
+  name: string
+  text: string
+  /** Куда ведёт «Подробнее». Пусто — ссылка не рисуется. */
+  href: string
+  imageUrl: string
+  imageUrlDark: string
+}
+
+export interface ProductsContent {
   eyebrow: string
   title: string
   subtitle: string
-  items: ReviewItem[]
+  items: ProductItem[]
+  /** Баннер под каруселью: единый вход во все продукты. */
+  bannerTitle: string
+  bannerText: string
+  bannerCta: string
+  bannerHref: string
 }
 
 export interface ClientItem {
@@ -175,27 +113,31 @@ export interface ClientItem {
 
 export interface ClientsContent {
   eyebrow: string
-  title: string
-  subtitle: string
   items: ClientItem[]
 }
 
-export interface FaqItem {
-  question: string
-  answer: string
+/** Рекомендательное письмо: превью и ссылка на скан. */
+export interface LetterItem {
+  title: string
+  imageUrl: string
+  href: string
 }
 
-export interface FaqContent {
+export interface LettersContent {
   eyebrow: string
-  title: string
-  subtitle: string
-  items: FaqItem[]
+  items: LetterItem[]
+  /** Кнопка на внешнюю площадку с отзывами. Пусто — не рисуется. */
+  reviewsLabel: string
+  reviewsUrl: string
 }
 
 export interface LeadContent {
   eyebrow: string
   title: string
-  text: string
+  subtitle: string
+  /** Подписи переключателя «что вас интересует». */
+  interestLabel: string
+  interests: string[]
   submitLabel: string
   consent: string
   successTitle: string
@@ -231,17 +173,11 @@ export interface LandingContent {
   brand: Brand
   nav: LinkItem[]
   hero: HeroContent
-  ticker: string[]
-  services: ServicesContent
-  about: AboutContent
-  process: ProcessContent
-  industries: IndustriesContent
-  product: ProductContent
-  plans: PlansContent
-  cta: CtaContent
-  reviews: ReviewsContent
+  development: DevelopmentContent
+  quick: QuickContent
+  products: ProductsContent
   clients: ClientsContent
-  faq: FaqContent
+  letters: LettersContent
   lead: LeadContent
   contacts: Contacts
   footer: FooterContent

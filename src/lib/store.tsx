@@ -36,6 +36,23 @@ function mergeContent(base: LandingContent, patch: Partial<LandingContent> | nul
       ;(merged[key] as unknown) = value
     }
   }
+
+  /*
+   * Состав страницы переживает смену набора секций.
+   *
+   * В опубликованном документе может лежать список разделов прежней версии
+   * сайта. Просто подставить его нельзя: знакомых идентификаторов в нём почти
+   * нет, и страница осталась бы без половины блоков — причём не у нас на
+   * сборке, а у посетителя, сразу после первого же ответа API.
+   *
+   * Поэтому берём из документа только известные разделы (там живёт порядок и
+   * выбор «показывать или нет»), а недостающие дописываем из сборки.
+   */
+  const known = new Set(base.sections.map((s) => s.id))
+  const kept = merged.sections.filter((s) => known.has(s.id))
+  const missing = base.sections.filter((s) => !kept.some((k) => k.id === s.id))
+  merged.sections = kept.length ? [...kept, ...missing] : base.sections
+
   return merged
 }
 

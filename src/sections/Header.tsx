@@ -58,7 +58,7 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
             Войти
           </LinkButton>
           <Button onClick={openLead} size="sm" className="hidden sm:inline-flex">
-            Обсудить задачу
+            Связаться
           </Button>
 
           <button
@@ -94,7 +94,7 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
                 }}
                 arrow
               >
-                Обсудить задачу
+                Связаться
               </Button>
               <LinkButton href={appLink('/login')} variant="outline">
                 Войти в Gravity RPA

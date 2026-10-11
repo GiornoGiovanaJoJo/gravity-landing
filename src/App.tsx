@@ -4,17 +4,11 @@ import { useTheme, type ThemeMode } from '@/lib/hooks'
 import { useStore } from '@/lib/store'
 import { Header } from '@/sections/Header'
 import { Hero } from '@/sections/Hero'
-import { Ticker } from '@/sections/Ticker'
-import { Services } from '@/sections/Services'
-import { About } from '@/sections/About'
-import { Process } from '@/sections/Process'
-import { Industries } from '@/sections/Industries'
-import { Product } from '@/sections/Product'
-import { Plans } from '@/sections/Plans'
-import { Cta } from '@/sections/Cta'
-import { Reviews } from '@/sections/Reviews'
+import { Development } from '@/sections/Development'
+import { QuickAsk } from '@/sections/QuickAsk'
+import { Products } from '@/sections/Products'
 import { Clients } from '@/sections/Clients'
-import { Faq } from '@/sections/Faq'
+import { Letters } from '@/sections/Letters'
 import { Lead, LeadModal } from '@/sections/Lead'
 import { Footer } from '@/sections/Footer'
 import { BrokerPage } from '@/broker/BrokerPage'
@@ -37,17 +31,11 @@ function LandingPage({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme
   // Порядок и состав секций задаются в админке — рендерим ровно так, как там.
   const RENDERERS: Record<SectionId, () => React.ReactNode> = {
     hero: () => <Hero />,
-    ticker: () => <Ticker />,
-    services: () => <Services />,
-    about: () => <About />,
-    process: () => <Process />,
-    industries: () => <Industries />,
-    product: () => <Product />,
-    plans: () => <Plans />,
-    cta: () => <Cta />,
-    reviews: () => <Reviews />,
+    development: () => <Development />,
+    quick: () => <QuickAsk />,
+    products: () => <Products />,
     clients: () => <Clients />,
-    faq: () => <Faq />,
+    letters: () => <Letters />,
     lead: () => <Lead />,
   }
 
