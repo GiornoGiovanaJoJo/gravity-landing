@@ -57,6 +57,30 @@ function mergeContent(base: LandingContent, patch: Partial<LandingContent> | nul
   return merged
 }
 
+/**
+ * Дописывает промокод к ссылке на регистрацию.
+ *
+ * Так ссылка с сайта становится пригласительной: форма регистрации подставит
+ * код, активация засчитается партнёру и даст пробный период — в CRM видно, что
+ * компания пришла отсюда, ровно как у заявки с формы виден источник.
+ *
+ * Только к регистрации: на входе компания уже существует, и код там ничего не
+ * значит. Уже стоящий в ссылке `promo` не перетирается — адрес из контента
+ * может вести на отдельную кампанию, и подменять её общим кодом нельзя.
+ */
+function withPromo(path: string, promoCode: string | undefined): string {
+  const code = promoCode?.trim()
+  if (!code || !/^\/register(?![\w-])/.test(path)) return path
+
+  const [beforeHash, hash] = path.split('#')
+  const [base, query = ''] = beforeHash.split('?')
+  const params = new URLSearchParams(query)
+  if (params.has('promo')) return path
+  params.set('promo', code)
+
+  return `${base}?${params}${hash ? `#${hash}` : ''}`
+}
+
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [content, setContent] = useState<LandingContent>(defaultContent)
   const [leadOpen, setLeadOpen] = useState(false)
@@ -80,9 +104,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     (path: string) => {
       if (isSiteRoute(path)) return siteHref(path)
       const base = content.brand.appUrl?.replace(/\/+$/, '') ?? ''
-      return `${base}${path}`
+      return `${base}${withPromo(path, content.brand.promoCode)}`
     },
-    [content.brand.appUrl],
+    [content.brand.appUrl, content.brand.promoCode],
   )
 
   const value = useMemo<Store>(
