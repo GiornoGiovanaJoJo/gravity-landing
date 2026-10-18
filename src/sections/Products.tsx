@@ -180,13 +180,29 @@ function ProductCard({ item, appLink }: { item: ProductItem; appLink: (path: str
       <p className="mt-2.5 flex-1 text-sm leading-relaxed text-fg-muted text-pretty">{item.text}</p>
 
       {item.href && (
+        /*
+         * Новой вкладкой: человек изучает витрину и сравнивает продукты, и уход
+         * с неё означает, что к остальным он возвращается кнопкой «назад».
+         *
+         * rel только noopener, без noreferrer: открывшаяся страница не должна
+         * иметь доступа к этой, но источник перехода нужен — по нему в CRM
+         * видно, что человек пришёл с сайта.
+         *
+         * Стрелка по диагонали, а не вправо: это тот же знак, которым в макете
+         * помечен уход со страницы, и он предупреждает о новой вкладке раньше
+         * нажатия. Для тех, кто ссылку не видит, об этом говорит aria-label —
+         * заодно он отличает четыре одинаковых «Подробнее» друг от друга.
+         */
         <a
           href={appLink(item.href)}
+          target="_blank"
+          rel="noopener"
+          aria-label={`Подробнее о продукте «${item.name}» — откроется в новой вкладке`}
           className="group mt-5 inline-flex items-center gap-1.5 text-sm text-fg-muted transition hover:text-fg"
         >
           Подробнее
-          <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">
-            →
+          <span aria-hidden="true" className="transition-transform group-hover:-translate-y-0.5">
+            ↗
           </span>
         </a>
       )}
