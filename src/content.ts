@@ -200,6 +200,8 @@ export const defaultContent: LandingContent = {
     slogan: 'Цифровые продукты и автоматизация под ключ: от готовой CRM до системы под ваш процесс.',
     copyright: '© 2026 G-NEURO',
     links: [],
+    nextTitle: 'Следующий шаг — ваш проект.',
+    nextCta: 'Обсудить проект',
   },
 
   sections: [

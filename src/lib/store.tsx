@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { defaultContent } from '@/content'
 import { fetchLandingContent } from './api'
+import { isSiteRoute, siteHref } from './routes'
 import type { LandingContent } from '@/types'
 
 interface Store {
@@ -68,8 +69,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return () => controller.abort()
   }, [])
 
+  /*
+   * Ссылки из контента собираются по-разному в зависимости от того, куда они
+   * ведут. Путь на страницу самого сайта («/broker») обязан остаться на этом
+   * домене и под этой базой; всё остальное — адреса приложения, и им нужен
+   * префикс CRM. Без этой развилки карточка продукта уводила посетителя на
+   * crm.gravityrpa.ru/broker, где такой страницы нет.
+   */
   const appLink = useCallback(
     (path: string) => {
+      if (isSiteRoute(path)) return siteHref(path)
       const base = content.brand.appUrl?.replace(/\/+$/, '') ?? ''
       return `${base}${path}`
     },

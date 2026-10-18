@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { fetchBranding } from '@/lib/api'
 import { useTheme, type ThemeMode } from '@/lib/hooks'
+import { BROKER_ROUTE, matchesRoute } from '@/lib/routes'
 import { useStore } from '@/lib/store'
 import { Header } from '@/sections/Header'
 import { Hero } from '@/sections/Hero'
@@ -13,17 +14,6 @@ import { Lead, LeadModal } from '@/sections/Lead'
 import { Footer } from '@/sections/Footer'
 import { BrokerPage } from '@/broker/BrokerPage'
 import type { SectionId } from '@/types'
-
-/**
- * Страница про кабинеты застройщика и брокера живёт на отдельном адресе.
- *
- * Свой router сюда не тянем: страниц две, а зависимость обошлась бы в лишний
- * бандл ради одной проверки. Хвост пути, а не точное равенство, — сайт
- * встраивается в CRM под префиксом /site/, и адрес там /site/broker.
- */
-function isBrokerPath(pathname: string) {
-  return /\/broker\/?$/i.test(pathname)
-}
 
 function LandingPage({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme: () => void }) {
   const { content } = useStore()
@@ -74,7 +64,14 @@ export default function App() {
 
   if (redirecting) return null
 
-  if (isBrokerPath(window.location.pathname)) {
+  /*
+   * Страница про кабинеты застройщика и брокера живёт на отдельном адресе.
+   *
+   * Свой router сюда не тянем: страниц две, а зависимость обошлась бы в лишний
+   * бандл ради одной проверки. Какие адреса обслуживает сам сайт, знает
+   * lib/routes — оттуда же ссылки на них собирает store.
+   */
+  if (matchesRoute(window.location.pathname, BROKER_ROUTE)) {
     return <BrokerPage theme={theme} onToggleTheme={toggle} />
   }
 

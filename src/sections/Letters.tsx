@@ -45,11 +45,11 @@ export function Letters() {
                     className="block aspect-[3/4] w-full object-cover object-top"
                   />
                 ) : (
-                  <span className="mono-label flex aspect-[3/4] items-center justify-center px-4 text-center text-[#2b2f7a]">
+                  <span className="mono-label flex aspect-[3/4] items-center justify-center px-4 text-center text-iris">
                     {item.title}
                   </span>
                 )}
-                <span className="flex items-center justify-between gap-2 px-4 py-3 text-xs text-[#2b2f7a]">
+                <span className="flex items-center justify-between gap-2 px-4 py-3 text-xs text-iris">
                   <span className="truncate">{item.title}</span>
                   <Icon name="ArrowUpRight" className="size-3.5 shrink-0 transition-transform group-hover:-translate-y-0.5" />
                 </span>

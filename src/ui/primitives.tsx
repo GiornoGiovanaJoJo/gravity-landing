@@ -1,7 +1,6 @@
-import { useEffect, useId, useState, type ReactNode } from 'react'
+import { useEffect, useId, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 import { useInView, usePrefersReducedMotion } from '@/lib/hooks'
-import { Icon } from './Icon'
 
 /* ------------------------------------------------------------------ */
 /* Появление при скролле                                               */
@@ -39,24 +38,31 @@ export function Reveal({
 
 type ButtonVariant = 'primary' | 'outline' | 'ghost'
 
+/*
+ * Выключенная кнопка перекрашивается, а не гасится прозрачностью: Electric под
+ * opacity на Deep Iris превращается в грязно-синее пятно, которое читается как
+ * сломанная кнопка, а не как недоступная.
+ */
 const BUTTON_BASE =
-  'group inline-flex shrink-0 items-center justify-center gap-2.5 rounded-pill text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-60'
+  'group inline-flex shrink-0 items-center justify-center gap-2.5 rounded-pill border border-transparent text-sm font-semibold transition-all duration-200 disabled:pointer-events-none disabled:border-line disabled:bg-transparent disabled:text-fg-subtle disabled:shadow-none'
 
 /**
- * Основная кнопка — контрастная плашка цветом текста: белая на тёмном фоне и
- * чёрная на светлом. Это самый читаемый вариант в обеих темах и он же держит
- * минимализм макета, где цвет остаётся только на стеклянных объектах.
+ * Основная кнопка — заливка Electric с тёмным текстом.
+ *
+ * Тёмный текст, а не белый: белый на фирменном синем даёт 3.9:1 и не проходит
+ * по контрасту, Deep Iris на нём же — 4.6:1. Это не вкусовое решение, поэтому
+ * пара «заливка + текст» задана здесь один раз и не разбирается по месту.
  */
 const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
-  primary: 'bg-fg text-bg hover:opacity-90 active:opacity-100',
-  outline: 'hairline surface text-fg hover:border-line-strong hover:bg-accent-soft',
+  primary: 'bg-accent-fill text-accent-contrast hover:glow-accent',
+  outline: 'border border-line text-fg hover:border-line-strong hover:bg-accent-soft',
   ghost: 'text-fg-muted hover:bg-accent-soft hover:text-fg',
 }
 
 const BUTTON_SIZES = {
-  sm: 'h-9 px-4',
-  md: 'h-11 px-5',
-  lg: 'h-12 px-6 text-[15px]',
+  sm: 'h-10 px-5',
+  md: 'h-12 px-6',
+  lg: 'h-13 px-7 text-[15px]',
 }
 
 interface ButtonProps {
@@ -64,19 +70,15 @@ interface ButtonProps {
   size?: keyof typeof BUTTON_SIZES
   className?: string
   children: ReactNode
-  /** Кружок со стрелкой справа — фирменная деталь кнопок студии. */
-  arrow?: boolean
+  /** Стрелка после подписи — как у кнопок макета. */
+  arrow?: boolean | 'up-right'
 }
 
-function ArrowDot({ variant }: { variant: ButtonVariant }) {
+/** Стрелка-глиф, а не иконка из пакета: в макете это просто знак после слова. */
+function Arrow({ kind }: { kind: boolean | 'up-right' }) {
   return (
-    <span
-      className={cn(
-        'flex size-6 items-center justify-center rounded-full transition-transform duration-200 group-hover:translate-x-0.5',
-        variant === 'primary' ? 'bg-bg/15' : 'bg-accent-soft',
-      )}
-    >
-      <Icon name="ArrowRight" className="size-3.5" />
+    <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-0.5">
+      {kind === 'up-right' ? '↗' : '→'}
     </span>
   )
 }
@@ -90,12 +92,9 @@ export function LinkButton({
   arrow = false,
 }: ButtonProps & { href: string }) {
   return (
-    <a
-      href={href}
-      className={cn(BUTTON_BASE, BUTTON_VARIANTS[variant], BUTTON_SIZES[size], arrow && 'pr-2', className)}
-    >
+    <a href={href} className={cn(BUTTON_BASE, BUTTON_VARIANTS[variant], BUTTON_SIZES[size], className)}>
       {children}
-      {arrow && <ArrowDot variant={variant} />}
+      {arrow && <Arrow kind={arrow} />}
     </a>
   )
 }
@@ -119,11 +118,64 @@ export function Button({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={cn(BUTTON_BASE, BUTTON_VARIANTS[variant], BUTTON_SIZES[size], arrow && 'pr-2', className)}
+      className={cn(BUTTON_BASE, BUTTON_VARIANTS[variant], BUTTON_SIZES[size], className)}
     >
       {children}
-      {arrow && <ArrowDot variant={variant} />}
+      {arrow && <Arrow kind={arrow} />}
     </button>
+  )
+}
+
+/** Круглая кнопка-стрелка каруселей. */
+export function RoundButton({
+  label,
+  onClick,
+  disabled,
+  children,
+}: {
+  label: string
+  onClick: () => void
+  disabled?: boolean
+  children: ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        'flex size-12 items-center justify-center rounded-full border border-line text-fg-muted transition',
+        disabled ? 'opacity-35' : 'hover:border-accent hover:text-fg',
+      )}
+    >
+      {children}
+    </button>
+  )
+}
+
+/** Обводная «таблетка»: теги направлений, мессенджеры, ссылки на соцсети. */
+export function Pill({
+  children,
+  href,
+  className,
+  external = false,
+}: {
+  children: ReactNode
+  href?: string
+  className?: string
+  external?: boolean
+}) {
+  const base = cn(
+    'inline-flex items-center rounded-pill border border-line px-5 py-2.5 text-sm text-fg-muted transition',
+    href && 'hover:border-accent hover:text-fg',
+    className,
+  )
+  if (!href) return <span className={base}>{children}</span>
+  return (
+    <a href={href} className={base} {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}>
+      {children}
+    </a>
   )
 }
 
@@ -143,7 +195,7 @@ export function Card({
   return (
     <div
       className={cn(
-        'surface rounded-card',
+        'panel rounded-card',
         hoverable && 'transition-colors duration-300 hover:border-line-strong',
         className,
       )}
@@ -157,26 +209,41 @@ export function Eyebrow({ children, className }: { children: ReactNode; classNam
   return <p className={cn('eyebrow', className)}>{children}</p>
 }
 
+/**
+ * Заголовок раздела.
+ *
+ * Два размера, и разница между ними смысловая. `display` — капсом и во всю
+ * ширину: им открываются разделы-витрины, которые видно с другого конца
+ * страницы. `plain` — в обычном регистре: им подписаны разделы, где рядом с
+ * заголовком сразу идёт содержательный текст, и капс читался бы вдвое дольше.
+ */
 export function SectionHeading({
   eyebrow,
   title,
   subtitle,
-  align = 'left',
+  size = 'display',
   className,
+  children,
 }: {
   eyebrow?: string
   title: string
   subtitle?: string
-  align?: 'center' | 'left'
+  size?: 'display' | 'plain'
   className?: string
+  children?: ReactNode
 }) {
   return (
-    <Reveal className={cn(align === 'center' ? 'mx-auto max-w-2xl text-center' : 'max-w-3xl', className)}>
-      {eyebrow && <Eyebrow className="mb-4">{eyebrow}</Eyebrow>}
-      <h2 className="text-[length:var(--text-h2)] leading-[1.05] font-light tracking-tight text-balance uppercase">
-        {title}
-      </h2>
+    <Reveal className={cn('max-w-3xl', className)}>
+      {eyebrow && <Eyebrow className="mb-5">{eyebrow}</Eyebrow>}
+      {size === 'display' ? (
+        <h2 className="display text-balance">{title}</h2>
+      ) : (
+        <h2 className="text-[length:var(--text-h3)] leading-[1.1] font-light tracking-tight text-balance">
+          {title}
+        </h2>
+      )}
       {subtitle && <p className="mt-5 max-w-xl text-fg-muted text-pretty">{subtitle}</p>}
+      {children}
     </Reveal>
   )
 }
@@ -191,80 +258,9 @@ export function Section({
   children: ReactNode
 }) {
   return (
-    <section id={id} className={cn('relative mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-32', className)}>
+    <section id={id} className={cn('relative mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-28', className)}>
       {children}
     </section>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* Лента                                                               */
-/* ------------------------------------------------------------------ */
-
-/**
- * Бесконечная лента на CSS-анимации: содержимое дублируется один раз, трек
- * уезжает на -50%, стык незаметен. При наведении лента замирает, чтобы её можно
- * было прочитать.
- */
-export function Marquee({
-  children,
-  durationSec = 44,
-  reverse = false,
-  className,
-}: {
-  children: ReactNode
-  durationSec?: number
-  reverse?: boolean
-  className?: string
-}) {
-  return (
-    <div className={cn('fade-edges-x overflow-hidden', className)}>
-      <div
-        className={cn('marquee-track', reverse ? 'animate-marquee-reverse' : 'animate-marquee')}
-        style={{ '--marquee-duration': `${durationSec}s` } as React.CSSProperties}
-      >
-        {children}
-        <div aria-hidden="true" className="flex">
-          {children}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* Аккордеон                                                           */
-/* ------------------------------------------------------------------ */
-
-export function AccordionItem({ question, answer }: { question: string; answer: string }) {
-  const [open, setOpen] = useState(false)
-  const id = useId()
-
-  return (
-    <div className="border-b border-line last:border-b-0">
-      <h3>
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-controls={id}
-          onClick={() => setOpen((v) => !v)}
-          className="flex w-full items-center justify-between gap-6 py-6 text-left text-base transition hover:text-accent"
-        >
-          {question}
-          <span
-            className={cn(
-              'flex size-8 shrink-0 items-center justify-center rounded-full border border-line transition-transform duration-300',
-              open && 'rotate-180 border-accent text-accent',
-            )}
-          >
-            <Icon name="ChevronDown" className="size-4" />
-          </span>
-        </button>
-      </h3>
-      <div id={id} role="region" hidden={!open} className={cn(open && 'pb-6')}>
-        <p className="max-w-3xl text-sm leading-relaxed text-fg-muted text-pretty">{answer}</p>
-      </div>
-    </div>
   )
 }
 
@@ -305,13 +301,13 @@ export function Modal({
         type="button"
         aria-label="Закрыть"
         onClick={onClose}
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-iris/80 backdrop-blur-sm"
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="hairline relative w-full max-w-lg rounded-card bg-bg-elevated p-6 shadow-2xl sm:p-8"
+        className="relative w-full max-w-lg rounded-card border border-line bg-bg-soft p-6 shadow-2xl sm:p-8"
       >
         {children}
       </div>
@@ -323,15 +319,23 @@ export function Modal({
 /* Поле формы                                                          */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Поле без видимой подписи: в макете поля подписаны подсказкой внутри.
+ *
+ * Подпись при этом существует и доступна скринридеру — она просто скрыта
+ * визуально. Это допустимо именно здесь: все три поля короткие и
+ * самоочевидные («Имя», «Телефон или email»), и заполненное поле читается без
+ * заголовка над ним.
+ */
 export function Field({
   label,
   name,
   type = 'text',
   value,
   onChange,
-  placeholder,
   required,
   multiline,
+  rows = 3,
   inputMode,
   autoComplete,
 }: {
@@ -340,32 +344,31 @@ export function Field({
   type?: string
   value: string
   onChange: (value: string) => void
-  placeholder?: string
   required?: boolean
   multiline?: boolean
+  rows?: number
   inputMode?: 'text' | 'tel' | 'email'
   autoComplete?: string
 }) {
   const id = useId()
   const shared =
-    'w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-fg outline-none transition placeholder:text-fg-subtle focus:border-accent'
+    'w-full rounded-xl border border-line bg-bg px-4 text-sm text-fg outline-none transition placeholder:text-fg-subtle focus:border-accent focus:ring-2 focus:ring-accent-soft'
 
   return (
-    <label htmlFor={id} className="block">
-      <span className="mb-2 block text-xs text-fg-muted">
+    <div>
+      <label htmlFor={id} className="sr-only">
         {label}
-        {required && <span className="ml-0.5 text-accent">*</span>}
-      </span>
+      </label>
       {multiline ? (
         <textarea
           id={id}
           name={name}
-          rows={3}
+          rows={rows}
           value={value}
           required={required}
-          placeholder={placeholder}
+          placeholder={label}
           onChange={(e) => onChange(e.target.value)}
-          className={cn(shared, 'resize-none')}
+          className={cn(shared, 'resize-none py-3.5')}
         />
       ) : (
         <input
@@ -374,13 +377,13 @@ export function Field({
           type={type}
           value={value}
           required={required}
-          placeholder={placeholder}
+          placeholder={label}
           inputMode={inputMode}
           autoComplete={autoComplete}
           onChange={(e) => onChange(e.target.value)}
-          className={shared}
+          className={cn(shared, 'h-13')}
         />
       )}
-    </label>
+    </div>
   )
 }

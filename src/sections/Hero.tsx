@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { useStore } from '@/lib/store'
-import { Bloom, GridLines } from '@/ui/decor'
-import { GlassSlab, TrajectoryLines } from '@/ui/iridescent'
-import { Button, LinkButton, Reveal } from '@/ui/primitives'
+import { Bloom } from '@/ui/decor'
+import { LoopVideo } from '@/ui/LoopVideo'
+import { Button, LinkButton, Reveal, RoundButton } from '@/ui/primitives'
 import { Icon } from '@/ui/Icon'
+import type { HeroSlide } from '@/types'
 
 /**
  * Первый экран: продукты по одному.
@@ -51,13 +52,11 @@ export function Hero() {
 
   return (
     <section id="top" className="relative overflow-hidden">
-      <GridLines />
-      <TrajectoryLines className="opacity-70" />
-      <Bloom className="top-[-10%] right-[-5%]" size={640} opacity={0.16} />
-      <Bloom className="bottom-[-20%] left-[-10%]" size={520} color="var(--irid-1)" opacity={0.1} />
+      <Bloom className="top-[-18%] right-[-6%]" size={720} opacity={0.2} />
+      <Bloom className="bottom-[-24%] left-[-12%]" size={540} opacity={0.1} />
 
       <div
-        className="relative mx-auto flex min-h-[min(760px,82svh)] max-w-7xl flex-col justify-center px-5 pt-14 pb-14 sm:px-8 lg:pt-16"
+        className="relative mx-auto flex min-h-[min(780px,86svh)] max-w-7xl flex-col justify-center px-5 pt-12 pb-16 sm:px-8"
         onTouchStart={(e) => {
           touchX.current = e.touches[0]?.clientX ?? null
         }}
@@ -72,7 +71,7 @@ export function Hero() {
           go(delta < 0 ? index + 1 : index - 1)
         }}
       >
-        <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
+        <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           {/* key на ключевых узлах: при смене слайда появление должно
               проигрываться заново, иначе текст меняется рывком. */}
           <div key={index}>
@@ -125,19 +124,19 @@ export function Hero() {
                   onClick={() => setIndex(i)}
                   className={cn(
                     'h-1.5 rounded-pill transition-all',
-                    i === index ? 'w-8 bg-fg' : 'w-1.5 bg-line-strong hover:bg-fg-subtle',
+                    i === index ? 'w-8 bg-accent-fill' : 'w-1.5 bg-line-strong hover:bg-fg-subtle',
                   )}
                 />
               ))}
             </div>
 
             <div className="flex items-center gap-2">
-              <ArrowButton label="Предыдущий продукт" onClick={() => go(index - 1)}>
+              <RoundButton label="Предыдущий продукт" onClick={() => go(index - 1)}>
                 <Icon name="ChevronLeft" className="size-4" />
-              </ArrowButton>
-              <ArrowButton label="Следующий продукт" onClick={() => go(index + 1)}>
+              </RoundButton>
+              <RoundButton label="Следующий продукт" onClick={() => go(index + 1)}>
                 <Icon name="ChevronRight" className="size-4" />
-              </ArrowButton>
+              </RoundButton>
             </div>
           </div>
         )}
@@ -147,19 +146,21 @@ export function Hero() {
 }
 
 /**
- * Снимок продукта в иридесцентной рамке.
+ * Визуал слайда.
  *
- * Пока снимка нет — стеклянный объект и подпись: честная заглушка лучше чужой
- * картинки, а пустое место на первом экране ломает композицию.
+ * У слайда либо есть снимок продукта, либо нет. Пока его нет, место занимает
+ * фирменный видеоцикл макета — это не заглушка, а штатное состояние первого
+ * экрана: у части продуктов интерфейса, который можно показать, не будет
+ * никогда. Рамка, скругление и размер общие, поэтому слайды не прыгают.
  */
-function SlideVisual({ slide }: { slide: { title: string; imageUrl: string; imageUrlDark: string } }) {
+function SlideVisual({ slide }: { slide: HeroSlide }) {
   const [failed, setFailed] = useState(false)
   const src = slide.imageUrlDark || slide.imageUrl
-  const show = src && !failed
+  const show = Boolean(src) && !failed
 
   return (
     <div className="relative mx-auto w-full max-w-xl">
-      <div className="hairline surface overflow-hidden rounded-[2rem] p-3 sm:p-4">
+      <div className="panel overflow-hidden rounded-[2rem] p-3 sm:p-4">
         {show ? (
           <img
             src={src}
@@ -167,36 +168,17 @@ function SlideVisual({ slide }: { slide: { title: string; imageUrl: string; imag
             loading="eager"
             decoding="async"
             onError={() => setFailed(true)}
-            className="block w-full rounded-3xl border border-line"
+            className="block aspect-square w-full rounded-3xl border border-line object-cover object-left-top"
           />
         ) : (
-          <div className="relative flex aspect-[4/3] items-center justify-center rounded-3xl border border-dashed border-line">
-            <GlassSlab className="opacity-90" size={190} seed={20} parallax={10} />
-            <span className="mono-label absolute bottom-5">{slide.title}</span>
-          </div>
+          <LoopVideo
+            name="hero"
+            label="Киборг в потоке программного кода"
+            className="aspect-square rounded-3xl border border-line"
+            objectPosition="center 34%"
+          />
         )}
       </div>
     </div>
-  )
-}
-
-function ArrowButton({
-  label,
-  onClick,
-  children,
-}: {
-  label: string
-  onClick: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      onClick={onClick}
-      className="hairline flex size-11 items-center justify-center rounded-full text-fg-muted transition hover:border-line-strong hover:text-fg"
-    >
-      {children}
-    </button>
   )
 }

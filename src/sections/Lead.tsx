@@ -4,8 +4,8 @@ import { isContactUsable, splitContact } from '@/lib/contact'
 import { useStore } from '@/lib/store'
 import { cn } from '@/lib/cn'
 import { Icon } from '@/ui/Icon'
-import { GlassOrb } from '@/ui/iridescent'
-import { Button, Card, Field, Modal, Reveal, Section } from '@/ui/primitives'
+import { LoopVideo } from '@/ui/LoopVideo'
+import { Button, Card, Field, Modal, Pill, Reveal, Section } from '@/ui/primitives'
 
 /**
  * Форма заявки.
@@ -15,8 +15,8 @@ import { Button, Card, Field, Modal, Reveal, Section } from '@/ui/primitives'
  * то и другое. Ответ уезжает в комментарий лида — менеджер видит, к какому
  * разговору готовиться, ещё до первого звонка.
  *
- * Контакт одним полем: телефон или почта, что удобнее. Обязательных полей два,
- * и это осознанный минимум — всё остальное выясняется в разговоре.
+ * Контакт одним полем: телефон или почта, что удобнее. Обязательны только имя,
+ * контакт и согласие — всё остальное выясняется в разговоре.
  */
 function LeadForm({ compact = false }: { compact?: boolean }) {
   const { content } = useStore()
@@ -27,10 +27,11 @@ function LeadForm({ compact = false }: { compact?: boolean }) {
   const [name, setName] = useState('')
   const [contact, setContact] = useState('')
   const [task, setTask] = useState('')
+  const [consent, setConsent] = useState(false)
   const [state, setState] = useState<'idle' | 'sending' | LeadResult>('idle')
 
   const sending = state === 'sending'
-  const ready = name.trim().length > 1 && isContactUsable(contact)
+  const ready = name.trim().length > 1 && isContactUsable(contact) && consent
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -51,7 +52,7 @@ function LeadForm({ compact = false }: { compact?: boolean }) {
   if (state === 'ok') {
     return (
       <div className="py-10 text-center">
-        <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
+        <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-accent-soft text-accent">
           <Icon name="Check" className="size-6" />
         </span>
         <h3 className="mt-5 text-lg">{lead.successTitle}</h3>
@@ -64,7 +65,7 @@ function LeadForm({ compact = false }: { compact?: boolean }) {
     <form onSubmit={onSubmit} className="space-y-4">
       {lead.interests.length > 0 && (
         <fieldset>
-          <legend className="mb-2.5 text-xs text-fg-muted">{lead.interestLabel}</legend>
+          <legend className="mb-3 text-sm text-fg-muted">{lead.interestLabel}</legend>
           <div className={cn('flex flex-wrap gap-2', compact && 'gap-1.5')}>
             {lead.interests.map((option) => (
               <button
@@ -73,9 +74,9 @@ function LeadForm({ compact = false }: { compact?: boolean }) {
                 aria-pressed={interest === option}
                 onClick={() => setInterest(option)}
                 className={cn(
-                  'rounded-pill border px-4 py-2 text-sm transition',
+                  'flex-1 rounded-pill border px-4 py-2.5 text-sm whitespace-nowrap transition',
                   interest === option
-                    ? 'border-fg bg-fg text-bg'
+                    ? 'border-accent-fill bg-accent-fill text-accent-contrast'
                     : 'border-line text-fg-muted hover:border-line-strong hover:text-fg',
                 )}
               >
@@ -86,52 +87,83 @@ function LeadForm({ compact = false }: { compact?: boolean }) {
         </fieldset>
       )}
 
-      <Field label="Имя" name="name" value={name} onChange={setName} placeholder="Как к вам обращаться" required autoComplete="name" />
-      <Field
-        label="Телефон или email"
-        name="contact"
-        value={contact}
-        onChange={setContact}
-        placeholder="+7 900 000-00-00 или name@company.ru"
-        required
-      />
-      <Field
-        label="Краткое описание задачи"
-        name="task"
-        value={task}
-        onChange={setTask}
-        placeholder="Что нужно сделать и к какому сроку"
-        multiline
-      />
+      <Field label="Имя" name="name" value={name} onChange={setName} required autoComplete="name" />
+      <Field label="Телефон или email" name="contact" value={contact} onChange={setContact} required />
+      <Field label="Краткое описание задачи" name="task" value={task} onChange={setTask} multiline rows={2} />
+
+      {/*
+        Согласие — отдельная галочка, а не строка мелким шрифтом под кнопкой.
+        Заявка уезжает в CRM с телефоном и почтой, и согласие на их обработку
+        должно быть действием человека, а не следствием нажатия «отправить».
+      */}
+      <label className="flex cursor-pointer items-start gap-3 text-xs leading-relaxed text-fg-muted">
+        {/*
+          Флажок нарисован, а не системный: системный окрашивается браузером по
+          accent-color и на тёмной теме получается светлым пятном, которое не
+          попадает ни в одну из двух палитр.
+        */}
+        <input
+          type="checkbox"
+          checked={consent}
+          onChange={(e) => setConsent(e.target.checked)}
+          className="peer sr-only"
+        />
+        <span
+          aria-hidden="true"
+          className="mt-px flex size-4.5 shrink-0 items-center justify-center rounded-[5px] border border-line-strong text-accent-contrast transition peer-checked:border-accent-fill peer-checked:bg-accent-fill peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent"
+        >
+          {/* Галочка ставится React, а не `peer-checked`: вариант `peer-*`
+              действует на соседей самого поля, а здесь она лежит внутри
+              соседа и правило до неё не достаёт. */}
+          {consent && (
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M4 12.5l5.5 5.5L20 6.5" />
+            </svg>
+          )}
+        </span>
+        <span>
+          {lead.consent}
+          {contacts.privacyUrl && (
+            <>
+              {' '}
+              <a
+                href={contacts.privacyUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="underline underline-offset-2 hover:text-fg"
+              >
+                Политика
+              </a>
+            </>
+          )}
+        </span>
+      </label>
 
       {(state === 'error' || state === 'not-configured') && (
-        <p className="rounded-xl bg-amber-500/12 px-4 py-3 text-xs text-amber-700 dark:text-amber-300">
+        <p className="rounded-xl border border-line bg-accent-soft px-4 py-3 text-xs text-fg-muted">
           {state === 'not-configured'
             ? lead.fallbackText
             : 'Не удалось отправить заявку. Попробуйте ещё раз или напишите нам напрямую.'}
           {(contacts.phone || contacts.email) && (
-            <span className="mt-1 block text-fg-muted">
+            <span className="mt-1 block text-fg">
               {contacts.phone} {contacts.phone && contacts.email ? '·' : ''} {contacts.email}
             </span>
           )}
         </p>
       )}
 
-      <Button type="submit" size="lg" className="w-full" disabled={sending || !ready} arrow={!sending}>
+      <Button type="submit" size="lg" className="w-full" disabled={sending || !ready}>
         {sending ? 'Отправляем…' : lead.submitLabel}
       </Button>
-
-      <p className="text-center text-[11px] leading-relaxed text-fg-subtle">
-        {lead.consent}
-        {contacts.privacyUrl && (
-          <>
-            {' '}
-            <a href={contacts.privacyUrl} target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-fg">
-              Политика
-            </a>
-          </>
-        )}
-      </p>
     </form>
   )
 }
@@ -143,48 +175,63 @@ export function Lead() {
 
   const hasContacts = Boolean(contacts.phone || contacts.email || contacts.address)
   const hasChannels = Boolean(contacts.telegram || contacts.whatsapp)
-  /*
-   * Пока контакты не заполнены, левая колонка пуста, и форма в две колонки
-   * висит в правой половине пустого экрана. Поэтому раскладка зависит от
-   * содержимого: есть что показать слева — две колонки, нет — одна узкая по
-   * центру.
-   */
-  const twoColumns = hasContacts || hasChannels
 
   return (
     <Section id="lead" className="border-t border-line">
-      <GlassOrb className="top-10 right-[8%] hidden -translate-x-1/2 lg:block" size={110} seed={300} parallax={20} />
-
       <Reveal className="relative max-w-3xl">
         <p className="eyebrow">{lead.eyebrow}</p>
-        <h2 className="mt-6 text-[length:var(--text-h2)] leading-[1.05] font-light tracking-tight text-balance uppercase">
-          {lead.title}
-        </h2>
+        <h2 className="display-sm mt-6 text-balance">{lead.title}</h2>
         {lead.subtitle && <p className="mt-5 max-w-xl text-fg-muted text-pretty">{lead.subtitle}</p>}
       </Reveal>
 
-      <div
-        className={cn(
-          'relative mt-14 grid items-start gap-10',
-          twoColumns ? 'lg:grid-cols-2 lg:gap-16' : 'mx-auto max-w-xl',
-        )}
-      >
-        <div className={twoColumns ? '' : 'hidden'}>
+      <div className="relative mt-14 grid items-start gap-10 lg:grid-cols-2 lg:gap-14">
+        {/*
+          Левая колонка не пустеет, даже пока контакты не заполнены в админке:
+          её держит видеоцикл макета. Раньше раскладка переключалась между
+          одной и двумя колонками в зависимости от содержимого — теперь делить
+          экран пополам можно всегда.
+        */}
+        <div>
+          <Reveal>
+            <LoopVideo
+              name="form"
+              label="Неоновая голова со значками обратной связи"
+              className="aspect-[7/3] w-full rounded-card border border-line"
+              objectPosition="center 25%"
+            />
+          </Reveal>
+
           {hasContacts && (
-            <Reveal className="space-y-8">
-              {contacts.phone && (
-                <ContactBlock label="Телефон" value={contacts.phone} href={`tel:${contacts.phone.replace(/[^\d+]/g, '')}`} />
-              )}
-              {contacts.email && <ContactBlock label="Email" value={contacts.email} href={`mailto:${contacts.email}`} />}
-              {contacts.address && <ContactBlock label="Адрес" value={contacts.address} />}
+            <Reveal delayMs={80}>
+              <dl className="mt-9 grid gap-8 sm:grid-cols-3">
+                {contacts.phone && (
+                  <ContactBlock
+                    label="Телефон"
+                    value={contacts.phone}
+                    href={`tel:${contacts.phone.replace(/[^\d+]/g, '')}`}
+                  />
+                )}
+                {contacts.email && (
+                  <ContactBlock label="Email" value={contacts.email} href={`mailto:${contacts.email}`} />
+                )}
+                {contacts.address && <ContactBlock label="Адрес" value={contacts.address} />}
+              </dl>
             </Reveal>
           )}
 
           {hasChannels && (
-            <Reveal delayMs={100}>
-              <div className={cn('flex flex-wrap gap-2.5', hasContacts && 'mt-10')}>
-                {contacts.telegram && <ChannelLink href={contacts.telegram} label="Telegram" />}
-                {contacts.whatsapp && <ChannelLink href={contacts.whatsapp} label="WhatsApp" />}
+            <Reveal delayMs={140}>
+              <div className="mt-9 flex flex-wrap gap-2.5">
+                {contacts.telegram && (
+                  <Pill href={contacts.telegram} external>
+                    Telegram
+                  </Pill>
+                )}
+                {contacts.whatsapp && (
+                  <Pill href={contacts.whatsapp} external>
+                    WhatsApp
+                  </Pill>
+                )}
               </div>
             </Reveal>
           )}
@@ -203,28 +250,17 @@ export function Lead() {
 function ContactBlock({ label, value, href }: { label: string; value: string; href?: string }) {
   return (
     <div>
-      <p className="mono-label">{label}</p>
-      {href ? (
-        <a href={href} className="mt-2 block text-lg transition hover:text-accent">
-          {value}
-        </a>
-      ) : (
-        <p className="mt-2 text-lg text-pretty">{value}</p>
-      )}
+      <dt className="mono-label">{label}</dt>
+      <dd className="mt-2.5 font-mono text-sm">
+        {href ? (
+          <a href={href} className="transition hover:text-accent">
+            {value}
+          </a>
+        ) : (
+          <span className="text-pretty">{value}</span>
+        )}
+      </dd>
     </div>
-  )
-}
-
-function ChannelLink({ href, label }: { href: string; label: string }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className="hairline inline-flex items-center rounded-pill px-5 py-2.5 text-sm text-fg-muted transition hover:border-line-strong hover:text-fg"
-    >
-      {label}
-    </a>
   )
 }
 

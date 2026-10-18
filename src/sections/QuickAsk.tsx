@@ -3,7 +3,7 @@ import { submitLead, type LeadResult } from '@/lib/api'
 import { isContactUsable, splitContact } from '@/lib/contact'
 import { useStore } from '@/lib/store'
 import { Icon } from '@/ui/Icon'
-import { Button, Field, Reveal, Section } from '@/ui/primitives'
+import { Button, Field, Pill, Reveal, Section } from '@/ui/primitives'
 
 /**
  * Быстрый вопрос.
@@ -51,7 +51,7 @@ export function QuickAsk() {
       <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
         <Reveal>
           <p className="eyebrow">{q.eyebrow}</p>
-          <h2 className="mt-6 text-[length:var(--text-h3,1.75rem)] text-2xl leading-snug font-light text-balance sm:text-3xl">
+          <h2 className="mt-6 text-[length:var(--text-h3)] leading-[1.12] font-light tracking-tight text-balance">
             {q.title}
           </h2>
           {q.text && <p className="mt-5 max-w-md text-sm text-fg-muted text-pretty">{q.text}</p>}
@@ -60,14 +60,9 @@ export function QuickAsk() {
             <ul className="mt-9 flex flex-wrap gap-2.5">
               {channels.map((channel) => (
                 <li key={channel.href}>
-                  <a
-                    href={channel.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hairline inline-flex items-center rounded-pill px-5 py-2.5 text-sm text-fg-muted transition hover:border-line-strong hover:text-fg"
-                  >
+                  <Pill href={channel.href} external>
                     {channel.label}
-                  </a>
+                  </Pill>
                 </li>
               ))}
             </ul>
@@ -76,8 +71,8 @@ export function QuickAsk() {
 
         <Reveal delayMs={80}>
           {state === 'ok' ? (
-            <div className="hairline flex items-start gap-3 rounded-card p-6">
-              <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
+            <div className="flex items-start gap-3 rounded-card border border-line p-6">
+              <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent">
                 <Icon name="Check" className="size-4" />
               </span>
               <div>
@@ -86,30 +81,23 @@ export function QuickAsk() {
               </div>
             </div>
           ) : (
-            <form onSubmit={onSubmit} className="space-y-3">
-              <Field label="Имя" name="quick-name" value={name} onChange={setName} placeholder="Как к вам обращаться" required autoComplete="name" />
+            <form onSubmit={onSubmit} className="space-y-3.5">
+              <Field label="Имя" name="quick-name" value={name} onChange={setName} required autoComplete="name" />
+              <Field label="Телефон или email" name="quick-contact" value={contact} onChange={setContact} required />
               <Field
-                label="Телефон или email"
-                name="quick-contact"
-                value={contact}
-                onChange={setContact}
-                placeholder="+7 900 000-00-00 или name@company.ru"
-                required
-              />
-              <Field
-                label="Сообщение"
+                label="Сообщение (необязательно)"
                 name="quick-message"
                 value={message}
                 onChange={setMessage}
-                placeholder="Необязательно"
                 multiline
+                rows={2}
               />
 
               {(state === 'error' || state === 'not-configured') && (
-                <p className="rounded-xl bg-amber-500/12 px-4 py-3 text-xs text-amber-700 dark:text-amber-300">
+                <p className="rounded-xl border border-line bg-accent-soft px-4 py-3 text-xs text-fg-muted">
                   {content.lead.fallbackText}
                   {(contacts.phone || contacts.email) && (
-                    <span className="mt-1 block text-fg-muted">
+                    <span className="mt-1 block text-fg">
                       {contacts.phone} {contacts.phone && contacts.email ? '·' : ''} {contacts.email}
                     </span>
                   )}

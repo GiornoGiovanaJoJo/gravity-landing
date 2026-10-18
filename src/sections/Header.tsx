@@ -5,6 +5,13 @@ import { useStore } from '@/lib/store'
 import { Logo } from '@/ui/decor'
 import { Button, LinkButton } from '@/ui/primitives'
 
+/**
+ * Шапка макета: знак слева, разделы в одной «таблетке» по центру, действие
+ * справа.
+ *
+ * Разделы собраны в общую плашку намеренно — так навигация читается одним
+ * объектом и не спорит с крупной кнопкой справа, у которой в макете свой вес.
+ */
 export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme: () => void }) {
   const { content, appLink, openLead } = useStore()
   const scrolled = useScrolled(12)
@@ -29,16 +36,23 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
       <div
         className={cn(
           'mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 transition-all duration-300 sm:px-8',
-          scrolled ? 'h-16' : 'h-20',
+          scrolled ? 'h-18' : 'h-22',
         )}
       >
         <a href="#top" className="flex items-center" aria-label={content.brand.name}>
           <Logo name={content.brand.name} />
         </a>
 
-        <nav className="hidden items-center gap-9 lg:flex" aria-label="Разделы страницы">
+        <nav
+          className="hidden items-center rounded-pill border border-line bg-bg-soft/60 px-2 py-1.5 backdrop-blur-sm lg:flex"
+          aria-label="Разделы страницы"
+        >
           {content.nav.map((link) => (
-            <a key={link.href} href={link.href} className="text-sm text-fg-muted transition hover:text-fg">
+            <a
+              key={link.href}
+              href={link.href}
+              className="rounded-pill px-5 py-2.5 text-sm text-fg-muted transition hover:bg-accent-soft hover:text-fg"
+            >
               {link.label}
             </a>
           ))}
@@ -49,7 +63,7 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
             type="button"
             onClick={onToggleTheme}
             aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'}
-            className="hairline flex size-10 items-center justify-center rounded-full text-fg-muted transition hover:text-fg"
+            className="flex size-11 items-center justify-center rounded-full border border-line text-fg-muted transition hover:border-accent hover:text-fg"
           >
             {theme === 'dark' ? <SunGlyph /> : <MoonGlyph />}
           </button>
@@ -57,7 +71,7 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
           <LinkButton href={appLink('/login')} variant="ghost" size="sm" className="hidden sm:inline-flex">
             Войти
           </LinkButton>
-          <Button onClick={openLead} size="sm" className="hidden sm:inline-flex">
+          <Button onClick={openLead} className="hidden px-8 sm:inline-flex">
             Связаться
           </Button>
 
@@ -66,7 +80,7 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
             onClick={() => setMenuOpen((v) => !v)}
             aria-label={menuOpen ? 'Закрыть меню' : 'Открыть меню'}
             aria-expanded={menuOpen}
-            className="hairline flex size-10 items-center justify-center rounded-full lg:hidden"
+            className="flex size-11 items-center justify-center rounded-full border border-line lg:hidden"
           >
             {menuOpen ? <CloseGlyph /> : <MenuGlyph />}
           </button>

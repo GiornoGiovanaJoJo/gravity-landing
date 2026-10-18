@@ -1,0 +1,44 @@
+/**
+ * Собственные страницы сайта.
+ *
+ * Ссылка из контента может вести в двух разных мест: в приложение CRM
+ * (`/login`, `/register`) или на страницу самого сайта (`/broker`). Снаружи
+ * они выглядят одинаково — обычный путь от корня, — а собираются по-разному:
+ * адрес приложения берёт префикс из `brand.appUrl`, адрес страницы сайта —
+ * из базы сборки. Перепутать их нельзя: с `appUrl` страница про кабинеты
+ * уезжала на домен CRM, которая про неё ничего не знает, а без базы ломалась
+ * бы сборка, встроенная в CRM под `/site/`.
+ *
+ * Поэтому список живёт в одном месте, и его читают и App (что рендерить), и
+ * store (как собрать ссылку).
+ */
+
+export const BROKER_ROUTE = '/broker'
+
+const SITE_ROUTES: readonly string[] = [BROKER_ROUTE]
+
+/** Ведёт ли путь на страницу сайта, а не в приложение. */
+export function isSiteRoute(path: string): boolean {
+  const normalized = path.replace(/\/+$/, '').toLowerCase()
+  return SITE_ROUTES.includes(normalized)
+}
+
+/**
+ * Адрес страницы сайта с учётом базы сборки.
+ *
+ * Сайт собирается дважды — отдельным доменом (база «/») и встроенным в CRM
+ * (база «/site/»), — и жёсткий путь верен ровно для одной из сборок.
+ */
+export function siteHref(route: string): string {
+  return `${import.meta.env.BASE_URL}${route.replace(/^\/+/, '')}`
+}
+
+/**
+ * Открыт ли сейчас этот маршрут.
+ *
+ * Сравнивается хвост пути, а не весь путь: под какой базой лежит сайт, здесь
+ * неизвестно, и во встроенной сборке адрес страницы — `/site/broker`.
+ */
+export function matchesRoute(pathname: string, route: string): boolean {
+  return new RegExp(`${route}/?$`, 'i').test(pathname)
+}

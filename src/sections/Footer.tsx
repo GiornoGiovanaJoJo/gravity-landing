@@ -1,8 +1,11 @@
+import { BROKER_ROUTE, siteHref } from '@/lib/routes'
 import { useStore } from '@/lib/store'
 import { Logo } from '@/ui/decor'
+import { LoopVideo } from '@/ui/LoopVideo'
+import { Button, Eyebrow, Reveal } from '@/ui/primitives'
 
 export function Footer() {
-  const { content, appLink } = useStore()
+  const { content, appLink, openLead } = useStore()
   const { footer, contacts, nav, brand } = content
 
   const legal = [
@@ -17,6 +20,33 @@ export function Footer() {
 
   return (
     <footer className="border-t border-line">
+      {/*
+        Последний экран макета: страница заканчивается не перечнем ссылок, а
+        одним предложением и одной кнопкой. Человек, доскроллевший до низа,
+        либо уходит, либо пишет — и выбор должен быть виден без возврата наверх.
+      */}
+      <div className={`mx-auto w-full max-w-7xl px-5 pt-16 sm:px-8 ${footer.nextTitle ? '' : 'hidden'}`}>
+        <Reveal>
+          <div className="grid items-center gap-8 rounded-card border border-line bg-bg-soft/50 p-7 sm:p-10 lg:grid-cols-[1fr_auto] lg:gap-14">
+            <div>
+              <Eyebrow>{brand.name} / NEXT</Eyebrow>
+              <p className="mt-6 text-[length:var(--text-h3)] leading-[1.1] font-light tracking-tight text-balance">
+                {footer.nextTitle}
+              </p>
+              <Button onClick={openLead} size="lg" arrow="up-right" className="mt-8">
+                {footer.nextCta}
+              </Button>
+            </div>
+
+            <LoopVideo
+              name="footer"
+              label="Светящаяся звезда"
+              className="aspect-[6/5] w-full rounded-card border border-line lg:w-80"
+            />
+          </div>
+        </Reveal>
+      </div>
+
       <div
         className={`mx-auto grid max-w-7xl gap-12 px-5 py-16 sm:px-8 ${
           hasContacts ? 'lg:grid-cols-[1.5fr_1fr_1fr]' : 'lg:grid-cols-[1.5fr_1fr]'
@@ -41,10 +71,7 @@ export function Footer() {
                 меню: главная рассказывает про студию, и вклинивать в её
                 навигацию один из продуктов значит сбивать этот рассказ. */}
             <li>
-              <a
-                href={`${import.meta.env.BASE_URL}broker`}
-                className="text-sm text-fg-muted transition hover:text-fg"
-              >
+              <a href={siteHref(BROKER_ROUTE)} className="text-sm text-fg-muted transition hover:text-fg">
                 Кабинеты застройщика и брокера
               </a>
             </li>

@@ -162,6 +162,9 @@ export interface FooterContent {
   slogan: string
   copyright: string
   links: LinkItem[]
+  /** Последний экран: одно предложение и одна кнопка перед подвалом. */
+  nextTitle: string
+  nextCta: string
 }
 
 export interface SectionState {

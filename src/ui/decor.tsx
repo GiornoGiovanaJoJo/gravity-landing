@@ -1,61 +1,41 @@
 import { cn } from '@/lib/cn'
 
 /**
- * Знак студии: точка на орбите.
+ * Знак студии из утверждённого макета: контурная надпись «G-neur» и
+ * нейро-медуза вместо последней буквы.
  *
- * Отсылка к полёту читается геометрией — эллипс траектории и светлая точка,
- * ушедшая с неё вверх. Ни ракет, ни звёзд: намёк должен угадываться, а не
- * объявляться.
+ * Картинкой, а не инлайновым SVG: внутри фильтры свечения и полсотни контуров,
+ * и в разметке это полсотни килобайт в каждом месте, где стоит логотип. Файл
+ * браузер возьмёт из кэша один раз на весь сайт.
+ *
+ * Буквы залиты Deep Iris и обведены Electric, поэтому знак читается в обеих
+ * темах: на светлом фоне его держит заливка, на тёмном — обводка.
+ *
+ * Свечение из макета рисуется здесь тенью и только в тёмной теме. В самом
+ * файле оно было фильтром с режимом soft-light, а такой фильтр поверх светлого
+ * фона превращается в серый прямоугольник вокруг знака.
  */
 export function Logo({ className, name = 'G-NEURO' }: { className?: string; name?: string }) {
   return (
-    <span className={cn('inline-flex items-center gap-3', className)}>
-      <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true" className="shrink-0">
-        <ellipse
-          cx="14"
-          cy="14"
-          rx="12"
-          ry="6"
-          transform="rotate(-35 14 14)"
-          stroke="currentColor"
-          strokeOpacity="0.5"
-          strokeWidth="1.2"
-        />
-        <circle cx="20.5" cy="7.5" r="3.2" fill="currentColor" />
-      </svg>
-      <span className="text-[15px] font-medium tracking-[0.16em] uppercase">{name}</span>
-    </span>
+    <img
+      src={`${import.meta.env.BASE_URL}media/brand.svg`}
+      alt={name}
+      width={162}
+      height={44}
+      className={cn(
+        'block h-10 w-auto select-none sm:h-11',
+        'dark:drop-shadow-[0_0_10px_color-mix(in_oklab,var(--electric)_55%,transparent)]',
+        className,
+      )}
+    />
   )
 }
 
-/** Тонкая сетка на фоне — задаёт техничность, но не спорит с контентом. */
-export function GridLines({ className }: { className?: string }) {
-  return (
-    <div className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)} aria-hidden="true">
-      <svg className="absolute inset-0 size-full opacity-40" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern id="grid-cell" width="72" height="72" patternUnits="userSpaceOnUse">
-            <path d="M72 0H0V72" fill="none" stroke="currentColor" strokeWidth="1" className="text-line" />
-          </pattern>
-          <radialGradient id="grid-fade" cx="50%" cy="40%" r="70%">
-            <stop offset="0%" stopColor="white" stopOpacity="1" />
-            <stop offset="100%" stopColor="white" stopOpacity="0" />
-          </radialGradient>
-          <mask id="grid-mask">
-            <rect width="100%" height="100%" fill="url(#grid-fade)" />
-          </mask>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#grid-cell)" mask="url(#grid-mask)" />
-      </svg>
-    </div>
-  )
-}
-
-/** Мягкое цветное пятно под стеклом — «отсвет» объекта на фоне. */
+/** Мягкое электрическое пятно на фоне — отсвет объектов сцены. */
 export function Bloom({
   className,
   size = 520,
-  color = 'var(--accent)',
+  color = 'var(--electric)',
   opacity = 0.18,
 }: {
   className?: string

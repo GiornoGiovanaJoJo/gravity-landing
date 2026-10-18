@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useStore } from '@/lib/store'
-import { cn } from '@/lib/cn'
 import { Icon } from '@/ui/Icon'
-import { Card, LinkButton, Reveal, Section } from '@/ui/primitives'
+import { LoopVideo } from '@/ui/LoopVideo'
+import { Card, LinkButton, Reveal, RoundButton, Section } from '@/ui/primitives'
 import type { ProductItem } from '@/types'
 
 /**
@@ -56,24 +56,22 @@ export function Products() {
   if (p.items.length === 0) return null
 
   return (
-    <Section id="products">
+    <Section id="products" className="border-t border-line">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <Reveal className="max-w-3xl">
           <p className="eyebrow">{p.eyebrow}</p>
-          <h2 className="mt-6 text-[length:var(--text-h2)] leading-[1.05] font-light tracking-tight text-balance uppercase">
-            {p.title}
-          </h2>
+          <h2 className="display-sm mt-6 text-balance">{p.title}</h2>
           {p.subtitle && <p className="mt-5 max-w-xl text-fg-muted text-pretty">{p.subtitle}</p>}
         </Reveal>
 
         <Reveal delayMs={80}>
           <div className="flex items-center gap-2">
-            <ArrowButton label="Предыдущие решения" onClick={() => scrollBy(-1)} disabled={atStart}>
+            <RoundButton label="Предыдущие решения" onClick={() => scrollBy(-1)} disabled={atStart}>
               <Icon name="ChevronLeft" className="size-4" />
-            </ArrowButton>
-            <ArrowButton label="Следующие решения" onClick={() => scrollBy(1)} disabled={atEnd}>
+            </RoundButton>
+            <RoundButton label="Следующие решения" onClick={() => scrollBy(1)} disabled={atEnd}>
               <Icon name="ChevronRight" className="size-4" />
-            </ArrowButton>
+            </RoundButton>
           </div>
         </Reveal>
       </div>
@@ -100,34 +98,66 @@ export function Products() {
 
       {p.bannerTitle && (
         <Reveal delayMs={100}>
-          <Card className="mt-6 flex flex-wrap items-center justify-between gap-6 p-7 sm:p-9">
-            <div>
-              <p className="text-xl font-light">{p.bannerTitle}</p>
-              {p.bannerText && <p className="mt-2 text-sm text-fg-muted">{p.bannerText}</p>}
-            </div>
-            {p.bannerCta && p.bannerHref && (
-              <LinkButton href={appLink(p.bannerHref)} size="lg" arrow>
-                {p.bannerCta}
-              </LinkButton>
-            )}
-          </Card>
+          <PlatformBanner
+            title={p.bannerTitle}
+            text={p.bannerText}
+            cta={p.bannerCta}
+            href={p.bannerHref && appLink(p.bannerHref)}
+          />
         </Reveal>
       )}
     </Section>
   )
 }
 
+/**
+ * Единый вход во все продукты.
+ *
+ * Акцентная рамка и видео в центре: в макете это самый «громкий» объект
+ * раздела, и он же — единственное место, где из витрины продуктов можно уйти
+ * в саму платформу.
+ */
+function PlatformBanner({
+  title,
+  text,
+  cta,
+  href,
+}: {
+  title: string
+  text: string
+  cta: string
+  href: string
+}) {
+  return (
+    <div className="mt-8 grid items-center gap-8 rounded-card border border-accent/45 bg-[linear-gradient(140deg,color-mix(in_oklab,var(--electric)_14%,transparent),var(--panel))] p-7 sm:p-9 lg:grid-cols-[1fr_auto_auto] lg:gap-10">
+      <div>
+        <p className="text-2xl leading-tight font-light text-balance">{title}</p>
+        {text && <p className="mt-3 text-sm text-fg-muted text-pretty">{text}</p>}
+      </div>
+
+      <LoopVideo
+        name="products"
+        label="Лицо из жидкого хрома"
+        className="aspect-square w-full max-w-[13rem] rounded-2xl border border-line lg:w-52"
+      />
+
+      {cta && href && (
+        <LinkButton href={href} size="lg" arrow className="w-full lg:w-auto">
+          {cta}
+        </LinkButton>
+      )}
+    </div>
+  )
+}
+
 function ProductCard({ item, appLink }: { item: ProductItem; appLink: (path: string) => string }) {
   const [failed, setFailed] = useState(false)
   const src = item.imageUrlDark || item.imageUrl
-  const show = src && !failed
+  const show = Boolean(src) && !failed
 
   return (
-    <Card
-      hoverable
-      className="flex w-[min(20rem,78vw)] shrink-0 snap-start flex-col overflow-hidden p-4"
-    >
-      <div className="overflow-hidden rounded-xl border border-line bg-bg-soft">
+    <Card hoverable className="flex w-[min(21rem,80vw)] shrink-0 snap-start flex-col overflow-hidden p-4">
+      <div className="overflow-hidden rounded-xl border border-line bg-bg">
         {show ? (
           <img
             src={src}
@@ -146,8 +176,8 @@ function ProductCard({ item, appLink }: { item: ProductItem; appLink: (path: str
         )}
       </div>
 
-      <h3 className="mt-5 text-base font-medium">{item.name}</h3>
-      <p className="mt-2 flex-1 text-sm leading-relaxed text-fg-muted text-pretty">{item.text}</p>
+      <h3 className="mt-5 font-mono text-[15px] tracking-[0.03em]">{item.name}</h3>
+      <p className="mt-2.5 flex-1 text-sm leading-relaxed text-fg-muted text-pretty">{item.text}</p>
 
       {item.href && (
         <a
@@ -155,36 +185,11 @@ function ProductCard({ item, appLink }: { item: ProductItem; appLink: (path: str
           className="group mt-5 inline-flex items-center gap-1.5 text-sm text-fg-muted transition hover:text-fg"
         >
           Подробнее
-          <Icon name="ArrowRight" className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+          <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">
+            →
+          </span>
         </a>
       )}
     </Card>
-  )
-}
-
-function ArrowButton({
-  label,
-  onClick,
-  disabled,
-  children,
-}: {
-  label: string
-  onClick: () => void
-  disabled?: boolean
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      onClick={onClick}
-      disabled={disabled}
-      className={cn(
-        'hairline flex size-11 items-center justify-center rounded-full text-fg-muted transition',
-        disabled ? 'opacity-35' : 'hover:border-line-strong hover:text-fg',
-      )}
-    >
-      {children}
-    </button>
   )
 }

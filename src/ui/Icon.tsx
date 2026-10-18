@@ -1,16 +1,4 @@
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Check,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Mail,
-  MessageCircle,
-  Phone,
-  Send,
-  Sparkles,
-} from 'lucide-react'
+import { ArrowUpRight, Check, ChevronDown, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 /**
@@ -19,16 +7,11 @@ import type { LucideIcon } from 'lucide-react'
  * используется.
  */
 const ICONS: Record<string, LucideIcon> = {
-  ArrowRight,
   ArrowUpRight,
   Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Mail,
-  MessageCircle,
-  Phone,
-  Send,
 }
 
 export function Icon({ name, className }: { name: string; className?: string }) {

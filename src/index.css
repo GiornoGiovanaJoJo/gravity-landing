@@ -9,53 +9,66 @@
 /* ------------------------------------------------------------------ */
 
 /**
- * Палитра студии: почти чёрная база, белый текст и единственный цветной приём —
- * иридесцентный перелив на объектах. Акцентом работает электрический синий,
- * он же держит контраст на светлой теме.
+ * Палитра Deep Iris / Electric — из утверждённого макета студии.
+ *
+ * Пять цветов и ничего сверх: Deep Iris #0B1020 держит фон, Slate #2F3B52 —
+ * карточки, Electric #2E86DE — единственный акцент, Frost #9AB0C9 — подписи,
+ * Mist #EEF1F5 — текст. Макет тёмный, и тёмная тема здесь исходная, а светлая
+ * выведена из неё: фон становится Mist, текст — Deep Iris.
  */
 :root {
-  --accent-500: #3d5bff;
-  --accent-400: #6d84ff;
-  --accent-300: #9aa9ff;
-
-  /* Цвета перелива: ими окрашены стеклянные объекты. */
-  --irid-1: #ffb3d9;
-  --irid-2: #9db4ff;
-  --irid-3: #7ce8ff;
-  --irid-4: #ffd9a8;
+  --iris: #0b1020;
+  --slate: #2f3b52;
+  --electric: #2e86de;
+  --frost: #9ab0c9;
+  --mist: #eef1f5;
 
   /* Светлая тема. */
-  --bg: #f7f7f9;
+  --bg: var(--mist);
   --bg-soft: #ffffff;
   --bg-elevated: #ffffff;
-  --fg: #0b0b0d;
-  --fg-muted: #4c4c57;
-  --fg-subtle: #6a6a77;
-  --line: #e2e2e8;
-  --line-strong: #cfcfd8;
-  --accent: var(--accent-500);
-  --accent-soft: rgba(61, 91, 255, 0.1);
-  --accent-contrast: #ffffff;
-  --glass: rgba(255, 255, 255, 0.72);
-  --glass-line: rgba(11, 11, 13, 0.12);
-  --surface-alpha: 88%;
+  --fg: var(--iris);
+  --fg-muted: #4a5872;
+  /* 5.6:1 на фоне Mist: моноширинные метки набраны 11 пикселями, и более
+     светлый Frost из тёмной темы на светлой не добирает до 4.5:1. */
+  --fg-subtle: #556178;
+  --line: #d3dce7;
+  --line-strong: #b6c3d4;
+  /*
+   * Акцент разведён на два токена: заливку и текст.
+   *
+   * Electric на Mist даёт 2.6:1 и подписью не читается, поэтому текстовый
+   * акцент на светлой теме затемнён до 5:1. Заливка остаётся фирменной:
+   * контраст на ней держит не она сама, а тёмный текст поверх (4.6:1).
+   */
+  --accent: #1d6fc0;
+  --accent-fill: var(--electric);
+  --accent-soft: rgba(46, 134, 222, 0.12);
+  --accent-contrast: var(--iris);
+  --surface-alpha: 100%;
+  /* Плотность панели «как в макете»: на светлой теме это белая карточка. */
+  --panel: #ffffff;
+  --panel-edge: #dbe3ec;
 }
 
 .dark {
-  --bg: #08080a;
-  --bg-soft: #0d0d10;
-  --bg-elevated: #121216;
-  --fg: #f4f4f6;
-  --fg-muted: #b0b0bd;
-  --fg-subtle: #90909f;
-  --line: rgba(255, 255, 255, 0.12);
-  --line-strong: rgba(255, 255, 255, 0.22);
-  --accent: var(--accent-400);
-  --accent-soft: rgba(109, 132, 255, 0.16);
-  --accent-contrast: #05050a;
-  --glass: rgba(255, 255, 255, 0.05);
-  --glass-line: rgba(255, 255, 255, 0.16);
-  --surface-alpha: 82%;
+  --bg: var(--iris);
+  --bg-soft: #141b2e;
+  --bg-elevated: var(--slate);
+  --fg: var(--mist);
+  --fg-muted: var(--frost);
+  --fg-subtle: #7c90ab;
+  --line: rgba(154, 176, 201, 0.22);
+  --line-strong: rgba(154, 176, 201, 0.42);
+  --accent: var(--electric);
+  --accent-fill: var(--electric);
+  --accent-soft: rgba(46, 134, 222, 0.16);
+  --accent-contrast: var(--iris);
+  /* Карточки макета — Slate поверх Iris, не плотный и не прозрачный. */
+  --surface-alpha: 62%;
+  --panel: rgba(47, 59, 82, 0.48);
+  --panel-edge: rgba(154, 176, 201, 0.2);
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -75,8 +88,10 @@
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
   --color-accent-contrast: var(--accent-contrast);
-  --color-accent-400: var(--accent-400);
-  --color-accent-500: var(--accent-500);
+  --color-electric: var(--electric);
+  --color-frost: var(--frost);
+  --color-iris: var(--iris);
+  --color-mist: var(--mist);
 
   --radius-card: 1.5rem;
   --radius-pill: 999px;
@@ -85,6 +100,8 @@
   --text-display: clamp(2.75rem, 6.4vw, 5rem);
   --text-h1: clamp(2rem, 5vw, 4rem);
   --text-h2: clamp(1.9rem, 4vw, 3rem);
+  /* Заголовок раздела в обычном регистре — 40 px в макете. */
+  --text-h3: clamp(1.6rem, 2.9vw, 2.5rem);
   --text-lead: clamp(0.95rem, 1.15vw, 1.15rem);
 }
 
@@ -125,119 +142,89 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Иридесцентный материал                                              */
+/* Сцена блока IT-решений                                              */
 /* ------------------------------------------------------------------ */
 
 /**
- * Угол перелива анимируется через @property — иначе браузер не умеет плавно
- * интерполировать градиент и объект «дёргался» бы скачками.
- */
-@property --irid-angle {
-  syntax: '<angle>';
-  initial-value: 0deg;
-  inherits: false;
-}
-
-/**
- * Слиток: тёмное стеклянное тело с радужной дисперсией по кромке.
+ * Киборг в центре блока: дышит и мягко приподнимается.
  *
- * Ключ к материалу — разделение слоёв. Тело почти чёрное, иначе объект теряет
- * «вес»; перелив живёт отдельным слоем и маской прижат к краям — именно так
- * ведёт себя настоящее стекло, где радуга появляется на изгибе, а не в центре.
+ * Движение — единицы пикселей за семь секунд. Больше нельзя: фигура стоит
+ * между двумя колонками текста, и заметное смещение превращает соседние
+ * строки в дрожащие.
  */
-@utility iridescent-slab {
-  position: relative;
-  border-radius: 34%;
-  /* Нижний слой — сплошной перелив; тело объекта ляжет поверх и оставит от него
-     только кромку. Приём вместо mask-composite: тот не переживает минификацию
-     шорткатов и молча превращается в заливку. */
-  background: conic-gradient(
-    from calc(var(--irid-angle) + var(--seed, 0deg)),
-    var(--irid-1),
-    var(--irid-2),
-    var(--irid-3),
-    var(--irid-4),
-    var(--irid-1)
-  );
-  filter: saturate(1.5) contrast(1.05);
-  box-shadow: 0 46px 100px -34px rgba(0, 0, 0, 0.95);
-  animation: irid-shift 16s linear infinite;
-
-  /* Тело: тёмное стекло с бликом сверху и подсветкой снизу. */
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 4.5%;
-    border-radius: 32%;
-    background:
-      linear-gradient(122deg, transparent 30%, rgba(255, 255, 255, 0.5) 38%, transparent 46%),
-      radial-gradient(65% 50% at 32% 12%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 60%),
-      radial-gradient(130% 110% at 70% 85%, #17171d 0%, #0a0a0e 45%, #050507 100%);
-    box-shadow:
-      inset 0 1px 1px rgba(255, 255, 255, 0.3),
-      inset 0 -40px 70px rgba(0, 0, 0, 0.6);
-  }
-}
-
-/** Сфера того же материала. */
-@utility iridescent-orb {
-  position: relative;
-  border-radius: 50%;
-  background: conic-gradient(
-    from calc(var(--irid-angle) + var(--seed, 0deg)),
-    var(--irid-2),
-    var(--irid-3),
-    var(--irid-1),
-    var(--irid-4),
-    var(--irid-2)
-  );
-  filter: saturate(1.5) contrast(1.05);
-  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.9);
-  animation: irid-shift 22s linear infinite reverse;
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 6%;
-    border-radius: 50%;
-    background:
-      radial-gradient(60% 55% at 32% 20%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 60%),
-      radial-gradient(120% 120% at 62% 82%, #1b1b22 0%, #0a0a0e 55%, #060608 100%);
-    box-shadow:
-      inset 0 2px 2px rgba(255, 255, 255, 0.28),
-      inset 0 -16px 36px rgba(0, 0, 0, 0.7);
-  }
-}
-
-@keyframes irid-shift {
-  to {
-    --irid-angle: 360deg;
-  }
-}
-
-@keyframes drift {
+@keyframes breathe {
   0%,
   100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translate3d(0, -18px, 0) rotate(4deg);
+    transform: translate3d(0, -6px, 0);
   }
 }
 
-@utility animate-drift {
-  animation: drift 14s ease-in-out infinite;
+/** Фрагменты кода на фоне: всплывают, расходятся и гаснут. */
+@keyframes code-drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.16;
+  }
+  75% {
+    opacity: 0.12;
+  }
+  100% {
+    transform: translate3d(var(--dx, 20px), var(--dy, -30px), 0);
+    opacity: 0;
+  }
 }
 
-@utility animate-drift-slow {
-  animation: drift 22s ease-in-out infinite;
+/** Скан сверху вниз по портрету. */
+@keyframes scan {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  12%,
+  80% {
+    opacity: 0.45;
+  }
+  90% {
+    transform: translateY(var(--scan-distance, 420px));
+    opacity: 0;
+  }
+}
+
+/** Пунктир по связи от значка к центру — «сигнал идёт». */
+@keyframes link-flow {
+  to {
+    stroke-dashoffset: -130;
+  }
+}
+
+/*
+ * Анимации объявлены темой, а не `@utility`.
+ *
+ * `animate-*` — встроенное семейство Tailwind, которое читает ключи
+ * `--animate-*`; собственная статическая утилита с таким же именем в это
+ * семейство не попадает, и класс молча не даёт ничего. Длительность и задержку
+ * фрагменты кода задают своими переменными — поэтому шесть надписей живут по
+ * одному правилу, но вразнобой.
+ */
+@theme {
+  --animate-breathe: breathe 7s ease-in-out infinite;
+  --animate-code-drift: code-drift var(--code-duration, 11s) linear var(--code-delay, 0s) infinite;
+  --animate-scan: scan 8s ease-in-out infinite;
+  --animate-link-flow: link-flow 6s linear infinite;
 }
 
 /* ------------------------------------------------------------------ */
 /* Типографика и поверхности                                           */
 /* ------------------------------------------------------------------ */
 
-/** Крупный заголовок: лёгкое начертание и широкий трекинг, как у референса. */
+/** Заголовок первого экрана: лёгкое начертание, капс, плотный трекинг. */
 @utility display {
   font-size: var(--text-display);
   font-weight: 300;
@@ -247,31 +234,45 @@
 }
 
 /**
- * Надзаголовок раздела: моноширинный, разрядкой, с полосой слева.
+ * Тот же приём размером меньше — для заголовков разделов.
  *
- * Полоса рисуется здесь, а не отдельным элементом: она есть у каждого
- * надзаголовка, и вынести её в разметку значит повторить одно и то же в семи
+ * Отдельная ступень, а не переопределение размера по месту: на первом экране
+ * заголовок один на весь экран, а в разделе под ним сразу идёт подзаголовок и
+ * содержимое, и тот же кегль превращает страницу в череду баннеров.
+ */
+@utility display-sm {
+  font-size: var(--text-h2);
+  font-weight: 300;
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+/**
+ * Надзаголовок раздела: короткая электрическая черта, под ней моноширинная
+ * метка разрядкой. Черта идёт над текстом, а не сбоку, — так она читается как
+ * начало раздела, а не как маркер списка.
+ *
+ * Рисуется здесь, а не отдельным элементом: надзаголовок есть у каждого
+ * раздела, и вынести черту в разметку значит повторить одно и то же в семи
  * местах и однажды забыть.
  */
 @utility eyebrow {
-  position: relative;
-  padding-left: 1rem;
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--fg-subtle);
+  color: var(--fg-muted);
 
   &::before {
     content: '';
-    position: absolute;
-    left: 0;
-    top: 0.1em;
-    bottom: 0.1em;
-    width: 3px;
+    display: block;
+    width: 2.75rem;
+    height: 3px;
+    margin-bottom: 1.15rem;
     border-radius: 2px;
-    background: var(--accent);
+    background: var(--accent-fill);
   }
 }
 
@@ -307,78 +308,22 @@
   }
 }
 
-@utility fade-edges-x {
-  mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-  -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+/**
+ * Панель макета: Slate, уходящий в Deep Iris по диагонали.
+ *
+ * Отличается от `surface` намеренно. `surface` — ровная подложка под текст,
+ * панель — объект: у неё есть направление света, и из неё собраны карточки
+ * направлений, продуктов и формы.
+ */
+@utility panel {
+  background-image: linear-gradient(135deg, var(--panel), color-mix(in oklab, var(--bg) 92%, transparent));
+  background-color: var(--bg-soft);
+  border: 1px solid var(--panel-edge);
 }
 
-/** Подложка под текстом поверх фоновых объектов — гарантия контраста. */
-@utility scrim {
-  background: linear-gradient(
-    to bottom,
-    var(--bg) 0%,
-    color-mix(in oklab, var(--bg) 88%, transparent) 46%,
-    color-mix(in oklab, var(--bg) 55%, transparent) 74%,
-    transparent 100%
-  );
-
-  @media (width >= 1024px) {
-    background: linear-gradient(
-      to right,
-      var(--bg) 0%,
-      color-mix(in oklab, var(--bg) 90%, transparent) 34%,
-      color-mix(in oklab, var(--bg) 50%, transparent) 58%,
-      transparent 80%
-    );
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/* Анимации                                                            */
-/* ------------------------------------------------------------------ */
-
-@keyframes marquee-x {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes marquee-x-reverse {
-  from {
-    transform: translateX(-50%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-@keyframes dash-flow {
-  to {
-    stroke-dashoffset: -220;
-  }
-}
-
-@utility animate-marquee {
-  animation: marquee-x var(--marquee-duration, 44s) linear infinite;
-}
-
-@utility animate-marquee-reverse {
-  animation: marquee-x-reverse var(--marquee-duration, 44s) linear infinite;
-}
-
-@utility animate-dash {
-  animation: dash-flow 7s linear infinite;
-}
-
-@utility marquee-track {
-  display: flex;
-  width: max-content;
-  &:hover {
-    animation-play-state: paused;
-  }
+/** Свечение под акцентной кнопкой — фирменный отклик макета. */
+@utility glow-accent {
+  box-shadow: 0 0 25px color-mix(in oklab, var(--electric) 32%, transparent);
 }
 
 /* ------------------------------------------------------------------ */
