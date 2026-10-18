@@ -16,6 +16,10 @@ npm run dev        # http://localhost:5174
 локально поднятый сервер CRM (`gravity-rpa-crm/server`). Без него сайт работает
 на встроенном контенте из `src/content.ts`.
 
+`.env.development` задаёт `VITE_APP_URL` для dev: иначе «Войти» и «Попробовать»
+становятся относительными `/login` и `/register`, которые на localhost отдавать
+некому. На сборку он не влияет — она идёт в режиме production.
+
 ## Страницы
 
 Их две, и роутера нет: `src/App.tsx` смотрит на путь и рендерит либо главную,
@@ -25,12 +29,18 @@ npm run dev        # http://localhost:5174
 
 - `/broker` и прочие маршруты сайта — от базы сборки (`/broker` или
   `/site/broker`);
-- всё остальное (`/login`, `/register`) — от `brand.appUrl`, то есть в CRM.
+- всё остальное (`/login`, `/register`) — от `brand.appUrl`, то есть в кабинет
+  **https://g-neuro.gravityrpa.ru**.
+
+Кабинет брендовый, а не общий вход платформы `crm.gravityrpa.ru`: оба имени
+ведут на один сервер, но пространство открывается по имени хоста. Проксирование
+`/api/*` при этом остаётся на `crm.gravityrpa.ru` — это серверный вызов
+публичного API платформы, и оба хоста отдают один и тот же документ.
 
 Развилка обязательна: раньше карточки продуктов с `href: '/broker'` проходили
-через `appLink` и уводили посетителя на `crm.gravityrpa.ru/broker`, где такой
-страницы нет. Новый маршрут сайта добавляется в `SITE_ROUTES` — иначе он
-повторит ту же судьбу.
+через `appLink` и уводили посетителя на домен кабинета, где такой страницы нет.
+Новый маршрут сайта добавляется в `SITE_ROUTES` — иначе он повторит ту же
+судьбу.
 
 ## Дизайн и медиа
 
@@ -89,7 +99,7 @@ npm run dev        # http://localhost:5174
 | Переменная | Пусто (по умолчанию) | Значение в проде |
 |---|---|---|
 | `VITE_BASE` | `/site/` — сборка встраивается в CRM, которая отдаёт `index.html` с `/`, а ассеты с `/site/` | `/` — сайт в корне своего домена |
-| `VITE_APP_URL` | относительные `/login`, `/register` | `https://crm.gravityrpa.ru` |
+| `VITE_APP_URL` | относительные `/login`, `/register` | `https://g-neuro.gravityrpa.ru` |
 | `VITE_API_URL` | тот же origin | пусто (запросы уводит nginx) |
 
 ## Сборка
@@ -133,7 +143,7 @@ docker compose up -d
 
 | Variable | Значение |
 |---|---|
-| `VITE_APP_URL` | `https://crm.gravityrpa.ru` |
+| `VITE_APP_URL` | `https://g-neuro.gravityrpa.ru` |
 | `SITE_HOST` | `g-neuro.space` |
 | `SITE_IP` | `195.161.62.56` |
 

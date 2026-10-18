@@ -11,8 +11,10 @@ COPY . .
 
 # Самостоятельный сайт лежит в корне домена, а не под /site/ внутри CRM.
 ARG VITE_BASE=/
-# Кнопки «Войти» и «Начать бесплатно» ведут в CRM абсолютным адресом.
-ARG VITE_APP_URL=https://crm.gravityrpa.ru
+# Кнопки «Войти» и «Попробовать» ведут в кабинет G-Neuro абсолютным адресом.
+# Это брендовый хост компании, а не общий вход платформы: посетитель сайта
+# студии должен попадать в её пространство, а не на титульную crm.gravityrpa.ru.
+ARG VITE_APP_URL=https://g-neuro.gravityrpa.ru
 # Пусто = тот же origin: /api/* и /public/* уводит наш nginx (deploy/nginx.conf).
 ARG VITE_API_URL=
 ENV VITE_BASE=$VITE_BASE VITE_APP_URL=$VITE_APP_URL VITE_API_URL=$VITE_API_URL

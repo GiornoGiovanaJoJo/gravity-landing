@@ -51,7 +51,10 @@ jobs:
           cid=$(docker create gravity-landing:latest)
           docker cp "$cid:/usr/share/nginx/html" ./_dist > /dev/null
           docker rm "$cid" > /dev/null
-          grep -q 'crm.gravityrpa.ru'  _dist/assets/*.js
+          # Ищем ровно тот адрес, с которым собирали, а не вписанный сюда
+          # руками: вписанный живёт своей жизнью и при смене хоста перестаёт
+          # ловить как раз ту ошибку, ради которой проверка и написана.
+          grep -qF "${{ vars.VITE_APP_URL }}" _dist/assets/*.js
           grep -q 'src="/assets/'      _dist/index.html
           grep -q 'href="/favicon.svg"' _dist/index.html
 
