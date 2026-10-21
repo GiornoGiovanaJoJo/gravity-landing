@@ -57,6 +57,11 @@ jobs:
           grep -qF "${{ vars.VITE_APP_URL }}" _dist/assets/*.js
           grep -q 'src="/assets/'      _dist/index.html
           grep -q 'href="/favicon.svg"' _dist/index.html
+          # Номер счётчика попадает в бандл только из VITE_YM_ID: без него
+          # Метрика молча не считает визиты, и это видно лишь по пустому отчёту.
+          # Проверяем сам номер — URL скрипта лежит в бандле строкой всегда,
+          # даже когда переменная пуста и счётчик не поднимается.
+          grep -qF '113678401' _dist/assets/*.js
 
       - name: Export image
         run: |

@@ -17,7 +17,11 @@ ARG VITE_BASE=/
 ARG VITE_APP_URL=https://g-neuro.gravityrpa.ru
 # Пусто = тот же origin: /api/* и /public/* уводит наш nginx (deploy/nginx.conf).
 ARG VITE_API_URL=
-ENV VITE_BASE=$VITE_BASE VITE_APP_URL=$VITE_APP_URL VITE_API_URL=$VITE_API_URL
+# Счётчик Яндекс.Метрики. Номер живёт здесь, а не в переменных репозитория: он
+# выдан сайту один раз и меняется не чаще смены домена, а вот отсутствие его в
+# сборке заметно только по пустой статистике — то есть сильно позже деплоя.
+ARG VITE_YM_ID=113678401
+ENV VITE_BASE=$VITE_BASE VITE_APP_URL=$VITE_APP_URL VITE_API_URL=$VITE_API_URL VITE_YM_ID=$VITE_YM_ID
 
 # npm run build = tsc -b && vite build. Сборка идёт на раннере GitHub, где
 # памяти хватает, поэтому проверку типов не выносим (в отличие от CRM, где

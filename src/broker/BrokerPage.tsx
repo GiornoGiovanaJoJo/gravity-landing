@@ -12,7 +12,6 @@ import { Lead } from './sections/Lead'
 import { Footer } from './sections/Footer'
 import { StickyCta } from './sections/StickyCta'
 import { CookieNotice } from './sections/CookieNotice'
-import { initMetrika } from './tracking'
 import type { BrokerSectionId } from './types'
 
 /**
@@ -28,12 +27,6 @@ import type { BrokerSectionId } from './types'
  */
 export function BrokerPage({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme: () => void }) {
   const { content } = useBrokerStore()
-
-  // Счётчик поднимается один раз за жизнь страницы и только если его номер
-  // задан при сборке.
-  useEffect(() => {
-    initMetrika()
-  }, [])
 
   /*
    * Заголовок, описание и Open Graph — свои.
