@@ -4,7 +4,7 @@ import { isContactUsable, splitContact } from '@/lib/contact'
 import { useStore } from '@/lib/store'
 import { cn } from '@/lib/cn'
 import { Icon } from '@/ui/Icon'
-import { LoopVideo } from '@/ui/LoopVideo'
+import { SignalScene } from '@/ui/decor'
 import { Button, Card, Field, Modal, Pill, Reveal, Section } from '@/ui/primitives'
 
 /**
@@ -193,11 +193,9 @@ export function Lead() {
         */}
         <div>
           <Reveal>
-            <LoopVideo
-              name="form"
-              label="Неоновая голова со значками обратной связи"
+            <SignalScene
+              label="Сигнал заявки: узлы и связи, по которым идёт ответ"
               className="aspect-[7/3] w-full rounded-card border border-line"
-              objectPosition="center 25%"
             />
           </Reveal>
 

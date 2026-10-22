@@ -1,8 +1,7 @@
 import { cn } from '@/lib/cn'
 import { BLOG_ROUTE, BROKER_ROUTE, siteHref } from '@/lib/routes'
 import { useStore } from '@/lib/store'
-import { Logo } from '@/ui/decor'
-import { LoopVideo } from '@/ui/LoopVideo'
+import { Logo, StarBloom } from '@/ui/decor'
 import { Button, Eyebrow, Reveal, SHELL } from '@/ui/primitives'
 
 export function Footer() {
@@ -39,8 +38,7 @@ export function Footer() {
               </Button>
             </div>
 
-            <LoopVideo
-              name="footer"
+            <StarBloom
               label="Светящаяся звезда"
               className="aspect-[6/5] w-full rounded-card border border-line lg:w-80"
             />
