@@ -83,7 +83,7 @@ export function Products() {
              считает началом ленты край контейнера, а не первой карточки, и
              лента сразу уезжала на ширину отступа — кнопка «назад» при этом
              оставалась активной, хотя листать назад уже некуда. */
-          className="no-scrollbar -mx-5 flex snap-x snap-mandatory scroll-pl-5 gap-4 overflow-x-auto px-5 pb-2 sm:-mx-8 sm:scroll-pl-8 sm:px-8"
+          className="no-scrollbar bleed-x flex snap-x snap-mandatory scroll-pl-5 gap-4 overflow-x-auto pb-2 sm:scroll-pl-8"
           role="group"
           aria-label={p.title}
         >

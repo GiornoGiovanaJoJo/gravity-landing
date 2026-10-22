@@ -248,18 +248,45 @@ export function SectionHeading({
   )
 }
 
+/**
+ * Колонка страницы: ширина и поля в одном месте.
+ *
+ * Константой, а не только компонентом: те же поля нужны шапке, подвалу и
+ * первому экрану, у которых свой каркас, и до этого каждый из них повторял
+ * `max-w-7xl px-5 sm:px-8` руками — семь мест, расходившихся при любой правке.
+ *
+ * Поля растут ступенями: на широком мониторе прежние 32 px читаются не как
+ * поле, а как случайно обрезанный край.
+ */
+export const SHELL = 'mx-auto w-full max-w-shell px-5 sm:px-8 xl:px-12 2xl:px-16'
+
+/**
+ * Раздел страницы: фон во всю ширину, содержимое — в колонке.
+ *
+ * Два слоя, а не один. Раньше ограничение ширины висело прямо на `<section>`,
+ * и всё, что рисуется на самом разделе, обрывалось вместе с текстом: линия
+ * `border-t`, которую разделы передают через `className`, заканчивалась
+ * посреди экрана, а дать разделу фон во всю ширину было нельзя вовсе.
+ *
+ * `bleed` отдаёт содержимое без колонки — для блоков, которые сами знают, как
+ * занять ширину.
+ */
 export function Section({
   id,
   className,
+  innerClassName,
+  bleed = false,
   children,
 }: {
   id?: string
   className?: string
+  innerClassName?: string
+  bleed?: boolean
   children: ReactNode
 }) {
   return (
-    <section id={id} className={cn('relative mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-28', className)}>
-      {children}
+    <section id={id} className={cn('relative py-24 sm:py-28', className)}>
+      {bleed ? children : <div className={cn(SHELL, innerClassName)}>{children}</div>}
     </section>
   )
 }

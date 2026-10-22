@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { useScrolled, type ThemeMode } from '@/lib/hooks'
 import { useBrokerStore } from '../store'
-import { LinkButton, Logo } from '../ui'
+import { LinkButton, Logo, SHELL } from '../ui'
 
 /**
  * Шапка страницы продукта.
@@ -33,7 +33,8 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
     >
       <div
         className={cn(
-          'mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 transition-all duration-300 sm:px-8',
+          SHELL,
+          'flex items-center justify-between gap-6 transition-all duration-300',
           scrolled ? 'h-16' : 'h-20',
         )}
       >
@@ -85,7 +86,7 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
 
       {menuOpen && (
         <div className="border-t border-line bg-bg/97 backdrop-blur-xl lg:hidden">
-          <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-5 py-5 sm:px-8" aria-label="Разделы страницы">
+          <nav className={cn(SHELL, 'flex flex-col gap-1 py-5')} aria-label="Разделы страницы">
             {content.nav.map((link) => (
               <a
                 key={link.href}

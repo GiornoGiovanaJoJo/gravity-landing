@@ -4,7 +4,7 @@ import { useScrolled, type ThemeMode } from '@/lib/hooks'
 import { BLOG_ROUTE, siteHref } from '@/lib/routes'
 import { useStore } from '@/lib/store'
 import { Logo } from '@/ui/decor'
-import { Button, LinkButton } from '@/ui/primitives'
+import { Button, LinkButton, SHELL } from '@/ui/primitives'
 
 /**
  * Шапка макета: знак слева, разделы в одной «таблетке» по центру, действие
@@ -36,7 +36,8 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
     >
       <div
         className={cn(
-          'mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 transition-all duration-300 sm:px-8',
+          SHELL,
+          'flex items-center justify-between gap-6 transition-all duration-300',
           scrolled ? 'h-18' : 'h-22',
         )}
       >
@@ -96,7 +97,7 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
 
       {menuOpen && (
         <div className="border-t border-line bg-bg/95 backdrop-blur-xl lg:hidden">
-          <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-5 py-5 sm:px-8" aria-label="Разделы страницы">
+          <nav className={cn(SHELL, 'flex flex-col gap-1 py-5')} aria-label="Разделы страницы">
             {content.nav.map((link) => (
               <a
                 key={link.href}

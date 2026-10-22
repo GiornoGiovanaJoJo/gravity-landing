@@ -27,7 +27,7 @@ export function Letters() {
       </Reveal>
 
       <Reveal delayMs={80} className="mt-10">
-        <ul className="no-scrollbar -mx-5 flex snap-x gap-4 overflow-x-auto px-5 pb-2 sm:-mx-8 sm:px-8">
+        <ul className="no-scrollbar bleed-x flex snap-x gap-4 overflow-x-auto pb-2">
           {items.map((item) => (
             <li key={item.title} className="w-[min(14rem,60vw)] shrink-0 snap-start">
               <a

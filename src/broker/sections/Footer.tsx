@@ -1,5 +1,6 @@
+import { cn } from '@/lib/cn'
 import { useBrokerStore } from '../store'
-import { Logo } from '../ui'
+import { Logo, SHELL } from '../ui'
 
 /**
  * Подвал страницы продукта.
@@ -27,7 +28,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-line">
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[1.5fr_1fr_1fr]">
+      <div className={cn(SHELL, 'grid gap-10 py-14 lg:grid-cols-[1.5fr_1fr_1fr]')}>
         <div>
           <Logo name={brand.name} />
           <p className="mt-5 max-w-sm text-sm text-fg-muted text-pretty">{footer.slogan}</p>
@@ -82,7 +83,12 @@ export function Footer() {
       </div>
 
       <div className="border-t border-line">
-        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-5 py-6 text-xs text-fg-subtle sm:flex-row sm:items-center sm:justify-between sm:px-8">
+        <div
+          className={cn(
+            SHELL,
+            'flex flex-col gap-2 py-6 text-xs text-fg-subtle sm:flex-row sm:items-center sm:justify-between',
+          )}
+        >
           <p>{footer.copyright}</p>
           {requisites.length > 0 && <p className="text-pretty">{requisites.join(' · ')}</p>}
         </div>

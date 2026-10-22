@@ -1,8 +1,9 @@
+import { cn } from '@/lib/cn'
 import { BLOG_ROUTE, BROKER_ROUTE, siteHref } from '@/lib/routes'
 import { useStore } from '@/lib/store'
 import { Logo } from '@/ui/decor'
 import { LoopVideo } from '@/ui/LoopVideo'
-import { Button, Eyebrow, Reveal } from '@/ui/primitives'
+import { Button, Eyebrow, Reveal, SHELL } from '@/ui/primitives'
 
 export function Footer() {
   const { content, appLink, openLead } = useStore()
@@ -25,7 +26,7 @@ export function Footer() {
         одним предложением и одной кнопкой. Человек, доскроллевший до низа,
         либо уходит, либо пишет — и выбор должен быть виден без возврата наверх.
       */}
-      <div className={`mx-auto w-full max-w-7xl px-5 pt-16 sm:px-8 ${footer.nextTitle ? '' : 'hidden'}`}>
+      <div className={cn(SHELL, 'pt-16', !footer.nextTitle && 'hidden')}>
         <Reveal>
           <div className="grid items-center gap-8 rounded-card border border-line bg-bg-soft/50 p-7 sm:p-10 lg:grid-cols-[1fr_auto] lg:gap-14">
             <div>
@@ -48,9 +49,11 @@ export function Footer() {
       </div>
 
       <div
-        className={`mx-auto grid max-w-7xl gap-12 px-5 py-16 sm:px-8 ${
-          hasContacts ? 'lg:grid-cols-[1.5fr_1fr_1fr]' : 'lg:grid-cols-[1.5fr_1fr]'
-        }`}
+        className={cn(
+          SHELL,
+          'grid gap-12 py-16',
+          hasContacts ? 'lg:grid-cols-[1.5fr_1fr_1fr]' : 'lg:grid-cols-[1.5fr_1fr]',
+        )}
       >
         <div>
           <Logo name={brand.name} />
@@ -118,7 +121,12 @@ export function Footer() {
       </div>
 
       <div className="border-t border-line">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-6 text-xs text-fg-subtle sm:flex-row sm:items-center sm:justify-between sm:px-8">
+        <div
+          className={cn(
+            SHELL,
+            'flex flex-col gap-3 py-6 text-xs text-fg-subtle sm:flex-row sm:items-center sm:justify-between',
+          )}
+        >
           <p>
             {footer.copyright}
             {contacts.legalName ? ` · ${contacts.legalName}` : ''}

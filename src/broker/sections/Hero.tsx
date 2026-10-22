@@ -1,5 +1,6 @@
 import { useBrokerStore } from '../store'
-import { Eyebrow, Reveal } from '../ui'
+import { cn } from '@/lib/cn'
+import { Eyebrow, Reveal, SHELL } from '../ui'
 import { DemoForm } from './DemoForm'
 import { DeckActions } from './DeckActions'
 
@@ -19,7 +20,12 @@ export function Hero() {
 
   return (
     <section id="top" className="b-panel b-glow relative">
-      <div className="relative mx-auto grid max-w-7xl items-start gap-12 px-5 pt-14 pb-20 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:pt-20 lg:pb-28">
+      <div
+        className={cn(
+          SHELL,
+          'relative grid items-start gap-12 pt-14 pb-20 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:pt-20 lg:pb-28',
+        )}
+      >
         <div>
           <Reveal>
             <Eyebrow>{hero.eyebrow}</Eyebrow>

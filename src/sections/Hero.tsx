@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn'
 import { useStore } from '@/lib/store'
 import { Bloom } from '@/ui/decor'
 import { LoopVideo } from '@/ui/LoopVideo'
-import { Button, LinkButton, Reveal, RoundButton } from '@/ui/primitives'
+import { Button, LinkButton, Reveal, RoundButton, SHELL } from '@/ui/primitives'
 import { Icon } from '@/ui/Icon'
 import type { HeroSlide } from '@/types'
 
@@ -174,7 +174,7 @@ function Carousel({ slides }: { slides: HeroSlide[] }) {
       <Bloom className="bottom-[-24%] left-[-12%]" size={540} opacity={0.1} />
 
       <div
-        className="relative mx-auto flex max-w-7xl flex-col justify-center px-5 py-20 sm:px-8"
+        className={cn(SHELL, 'relative flex flex-col justify-center py-20')}
         onTouchStart={(e) => {
           touchX.current = e.touches[0]?.clientX ?? null
         }}

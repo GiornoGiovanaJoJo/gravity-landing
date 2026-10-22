@@ -2,6 +2,11 @@ import { useId, useState, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 import { useInView, usePrefersReducedMotion } from '@/lib/hooks'
 import { Icon } from '@/ui/Icon'
+import { SHELL } from '@/ui/primitives'
+
+/* Колонка общая с главной — секции страницы продукта берут её отсюда, чтобы не
+   знать про примитивы другой страницы. */
+export { SHELL }
 
 /**
  * Примитивы страницы про кабинеты застройщика и брокера.
@@ -184,18 +189,29 @@ export function SectionHeading({
   )
 }
 
+/**
+ * Раздел страницы продукта.
+ *
+ * Свой компонент, а не общий: у страницы продукта свой вертикальный ритм —
+ * блоки идут плотнее, чем на главной. А вот колонка общая: ширина и поля
+ * приходят из `SHELL` примитивов, чтобы две страницы не разъезжались.
+ */
 export function Section({
   id,
   className,
+  innerClassName,
+  bleed = false,
   children,
 }: {
   id?: string
   className?: string
+  innerClassName?: string
+  bleed?: boolean
   children: ReactNode
 }) {
   return (
-    <section id={id} className={cn('relative mx-auto w-full max-w-7xl px-5 py-16 sm:px-8', className)}>
-      {children}
+    <section id={id} className={cn('relative py-16', className)}>
+      {bleed ? children : <div className={cn(SHELL, innerClassName)}>{children}</div>}
     </section>
   )
 }
