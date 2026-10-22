@@ -78,9 +78,6 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
             {theme === 'dark' ? <SunGlyph /> : <MoonGlyph />}
           </button>
 
-          <LinkButton href={appLink('/login')} variant="ghost" size="sm" className="hidden sm:inline-flex">
-            Войти
-          </LinkButton>
           <Button onClick={openLead} className="hidden px-8 sm:inline-flex">
             Связаться
           </Button>
