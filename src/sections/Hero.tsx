@@ -2,12 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { useStore } from '@/lib/store'
 import { Bloom } from '@/ui/decor'
+import { HeroScene } from '@/ui/HeroScene'
 import { LoopVideo } from '@/ui/LoopVideo'
 import { Button, LinkButton, Reveal, RoundButton, SHELL } from '@/ui/primitives'
 import { Icon } from '@/ui/Icon'
 import type { HeroSlide } from '@/types'
-
-const HERO_IMAGE = `${import.meta.env.BASE_URL}media/hero.webp`
 
 /**
  * Первый экран: заставка студии, под ней — карусель продуктов.
@@ -15,35 +14,28 @@ const HERO_IMAGE = `${import.meta.env.BASE_URL}media/hero.webp`
  * Порядок именно такой: человек, открывший сайт впервые, сначала выясняет, кто
  * перед ним, и только потом выбирает продукт. Раньше разговор начинался сразу
  * с конкретной CRM, минуя сам вопрос.
- *
- * Заставка — картинка, а не ролик: кадр статичный, и единственное, что давало
- * видео, — вес в 762 КБ на первом же экране.
  */
 export function Hero() {
   const { content } = useStore()
-  const { title, subtitle, slides } = content.hero
 
   return (
     <section id="top" className="relative overflow-hidden">
-      {/* Единственный заголовок страницы. Скрыт, потому что нарисован прямо в
-          картинке: ни поисковик, ни читалка экрана её не разбирают, а первый
-          экран — то место, где сайт называет себя и своё дело. */}
-      <h1 className="sr-only">
-        {title} — {subtitle}
-      </h1>
-
       <Splash />
-      <Carousel slides={slides} />
+      <Carousel slides={content.hero.slides} />
     </section>
   )
 }
 
 /**
- * Заставка во всю ширину.
+ * Заставка во всю ширину: векторная сцена, поверх — живой текст.
  *
- * Подложка под картинкой — цвета её краёв: когда экран шире вписанного кадра,
- * по бокам остаётся фон страницы, а он светлее, и первый экран читался
- * картинкой в рамке.
+ * Раскладка одна на все экраны. Пока заголовок был нарисован внутри картинки,
+ * телефону приходилось отдавать отдельный блок: во всю ширину вшитая в кадр
+ * подпись становилась нечитаемой. Текст, набранный шрифтом, масштабируется сам,
+ * и вторая раскладка отпала вместе с ним.
+ *
+ * По той же причине исчезли доли и проценты: элементы больше не целятся в
+ * участки картинки, а просто идут столбцом по центру.
  */
 function Splash() {
   const { content, appLink, openLead } = useStore()
@@ -59,77 +51,73 @@ function Splash() {
     </Button>
   )
 
-  const alt = `${title}: ${subtitle}`
-
   return (
-    <>
-      <div className="hidden bg-[#070e17] sm:block">
+    <div className="relative isolate">
+      <HeroScene className="absolute inset-0 -z-20 size-full" />
+
+      {/*
+        Тёмное «озеро» под текстом.
+
+        Затемнение живёт здесь, а не внутри сцены, потому что сцена
+        масштабируется под пропорции экрана, а текст — нет: на узком экране
+        крылья сходились ровно там, где идёт подпись, и читать её было нельзя.
+        Слой же всегда накрывает ровно то место, где стоит текст.
+      */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(58%_46%_at_50%_54%,#050b17_0%,color-mix(in_oklab,#050b17_82%,transparent)_45%,transparent_100%)]"
+      />
+
+      <div
+        className={cn(
+          SHELL,
+          'flex min-h-[min(44rem,calc(100svh-5.5rem))] flex-col items-center justify-center py-16 text-center sm:py-20',
+        )}
+      >
         {/*
-          Размер задаётся высотой, а не шириной: кадр обязан помещаться на экран
-          целиком. От ширины 16:9 на мониторе 1920×1080 даёт 1080 точек высоты,
-          и нижний ряд направлений оказывается уже за краем экрана — ровно на
-          самом ходовом разрешении. Поэтому берётся меньшее из «во всю ширину» и
-          «во весь экран за вычетом шапки», а ширину считает соотношение сторон.
+          Единственный заголовок страницы. Раньше он был вшит в пиксели кадра, и
+          рядом приходилось держать скрытую копию — иначе ни поисковик, ни
+          читалка экрана не узнали бы, чей это сайт.
         */}
-        <div className="@container relative mx-auto aspect-video h-[min(56.25vw,calc(100svh-5.5rem))]">
-          <img
-            src={HERO_IMAGE}
-            alt={alt}
-            // Первый экран: грузится сразу и раньше остального, иначе страница
-            // открывается пустым тёмным прямоугольником.
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"
-            className="absolute inset-0 size-full object-cover"
-          />
+        {/* Знак набирается из самого названия, а не вписан в разметку: имя
+            компании приходит из контента и может смениться в админке. Первая
+            буква — фирменная «G» градиентом, как на утверждённом кадре. */}
+        <h1 className="hero-title text-[clamp(2.6rem,9vw,7rem)] leading-[0.95] font-light tracking-[-0.015em] text-mist uppercase">
+          <span className="hero-mark">{title.slice(0, 1)}</span>
+          {title.slice(1)}
+        </h1>
 
-          {/* Доли — с макета, где кнопка и направления стоят на этой же
-              картинке: кнопка сразу за светящейся линией под подписью. */}
-          <div className="absolute inset-x-0 top-[73.6%] flex -translate-y-1/2 justify-center px-6">{action}</div>
-
-          <ul className="absolute inset-x-0 top-[87%] flex -translate-y-1/2 flex-wrap items-center justify-center px-6">
-            {highlights.map((item, index) => (
-              <li
-                key={item.label}
-                className={cn('flex items-center gap-[1.1cqw] px-[1.8cqw]', index > 0 && 'border-l border-mist/15')}
-              >
-                <Icon name={item.icon} className="size-[clamp(0.9rem,2.1cqw,1.6rem)] text-electric" />
-                <span className="text-[clamp(0.68rem,1.05cqw,0.95rem)] leading-tight text-mist">{item.label}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      {/* На телефоне раскладка другая: во всю ширину нарисованная в кадре
-          подпись нечитаема, поэтому картинка идёт отдельно, а подпись, кнопка и
-          направления встают под ней столбцом. */}
-      <div className="mx-auto max-w-xl px-5 pt-10 sm:hidden">
-        <img
-          src={HERO_IMAGE}
-          alt={alt}
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-          className="block aspect-video w-full rounded-3xl border border-line object-cover"
-        />
-
-        <p className="mt-8 text-center text-[length:var(--text-lead)] leading-relaxed text-fg-muted text-pretty">
+        <p className="mt-7 max-w-2xl text-[length:var(--text-lead)] leading-relaxed text-frost text-pretty">
           {subtitle}
         </p>
 
-        <div className="mt-8 flex justify-center">{action}</div>
+        {/* Светящаяся черта из макета: граница между рассказом о компании и
+            действием, которое ей предлагают. */}
+        <span
+          aria-hidden="true"
+          className="mt-9 block h-px w-[min(26rem,70%)] bg-[linear-gradient(to_right,transparent,var(--electric),transparent)]"
+        />
 
-        <ul className="mt-10 grid grid-cols-2 gap-x-4 gap-y-5">
-          {highlights.map((item) => (
-            <li key={item.label} className="flex items-start gap-2.5">
-              <Icon name={item.icon} className="mt-0.5 size-4 shrink-0 text-accent-fill" />
-              <span className="text-xs leading-snug text-fg-muted">{item.label}</span>
+        <div className="mt-9">{action}</div>
+
+        <ul className="mt-14 flex flex-wrap items-center justify-center gap-y-4">
+          {highlights.map((item, index) => (
+            <li
+              key={item.label}
+              className={cn(
+                'flex items-center gap-2.5 px-4 sm:px-6',
+                // Разделители только между соседями в строке: у первого в ряду
+                // черта слева повисает в воздухе.
+                index > 0 && 'sm:border-l sm:border-mist/15',
+              )}
+            >
+              <Icon name={item.icon} className="size-4 shrink-0 text-electric sm:size-5" />
+              <span className="text-xs leading-tight text-mist sm:text-sm">{item.label}</span>
             </li>
           ))}
         </ul>
       </div>
-    </>
+    </div>
   )
 }
 

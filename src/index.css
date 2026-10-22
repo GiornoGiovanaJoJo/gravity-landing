@@ -214,6 +214,74 @@
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* Заставка первого экрана                                             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Дыхание крыльев.
+ *
+ * Ход почти незаметный и очень длинный: крылья держат на себе логотип, и
+ * заметное движение превращает первый экран в заставку телевизора. У левого и
+ * правого периоды разные — от одинаковых симметрия начинает «хлопать».
+ */
+@keyframes wing-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -14px, 0) scale(1.015);
+  }
+}
+
+/** Свечение в центре: медленно набирает и отдаёт яркость. */
+@keyframes core-pulse {
+  0%,
+  100% {
+    opacity: 0.82;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Классы, а не Tailwind-утилиты: их носят узлы внутри SVG, собранного в одном
+   компоненте, и держать параметры рядом с кадрами удобнее, чем в разметке. */
+.hero-wing {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wing-drift 22s ease-in-out infinite;
+}
+.hero-wing-right {
+  animation-duration: 27s;
+  animation-delay: -6s;
+}
+.hero-pulse {
+  animation: core-pulse 14s ease-in-out infinite;
+}
+
+/**
+ * Заголовок заставки.
+ *
+ * Свечение тенью, а не фильтром: `drop-shadow` на крупном тексте заставляет
+ * браузер растрировать слой целиком и на слабых машинах даёт рваную прокрутку,
+ * тогда как две мягкие тени рисуются дёшево.
+ */
+.hero-title {
+  text-shadow:
+    0 0 38px color-mix(in oklab, var(--electric) 45%, transparent),
+    0 0 120px color-mix(in oklab, var(--electric) 25%, transparent);
+}
+
+/* Знак студии: та же синяя «G», что и в макете заставки. */
+.hero-mark {
+  background: linear-gradient(145deg, #7fc4ff 0%, var(--electric) 55%, #1b63ad 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 /*
  * Анимации объявлены темой, а не `@utility`.
  *
