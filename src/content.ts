@@ -62,6 +62,35 @@ export const defaultContent: LandingContent = {
       { icon: 'Network', label: 'Нейросети и ИИ' },
       { icon: 'Layers', label: 'Корпоративное ПО и аналитика' },
     ],
+    slides: [
+      {
+        eyebrow: 'Приоритетный продукт',
+        title: 'Gravity RPA',
+        text: 'CRM с автоматизацией, звонками и рассылками. Лиды, сделки, задачи и документы в одном окне — рутину забирает автоматизация.',
+        cta: 'Попробовать',
+        href: '/register',
+        imageUrl: '',
+        imageUrlDark: '',
+      },
+      {
+        eyebrow: 'Отраслевое решение',
+        title: 'Кабинеты застройщика и брокера',
+        text: 'Партнёрские продажи недвижимости: подключение агентств, фиксации клиентов, брони, сделки и выплата комиссий.',
+        cta: 'Посмотреть кабинет',
+        href: '/broker',
+        imageUrl: asset('screens/overview.webp'),
+        imageUrlDark: asset('screens/overview-dark.webp'),
+      },
+      {
+        eyebrow: 'Почтовый сервис',
+        title: 'Рассылки и письма',
+        text: 'Собственный рассылщик с шаблонами, сегментами и отчётами по доставке — без сторонних сервисов и платы за адрес.',
+        cta: 'Обсудить задачу',
+        href: '',
+        imageUrl: '',
+        imageUrlDark: '',
+      },
+    ],
   },
 
   development: {
