@@ -149,9 +149,13 @@ export function Hero() {
  * Визуал слайда.
  *
  * У слайда либо есть снимок продукта, либо нет. Пока его нет, место занимает
- * фирменный видеоцикл макета — это не заглушка, а штатное состояние первого
- * экрана: у части продуктов интерфейса, который можно показать, не будет
- * никогда. Рамка, скругление и размер общие, поэтому слайды не прыгают.
+ * фирменная заставка — это не заглушка, а штатное состояние первого экрана: у
+ * части продуктов интерфейса, который можно показать, не будет никогда. Рамка,
+ * скругление и размер общие, поэтому слайды не прыгают.
+ *
+ * Рамка широкая, а не квадратная: в квадрате заставку приходилось обрезать по
+ * бокам ровно там, где идёт подпись, а снимки интерфейса (16:10) теряли сразу
+ * половину окна. Чего тут показывать нечего — так это вертикального кадра.
  */
 function SlideVisual({ slide }: { slide: HeroSlide }) {
   const [failed, setFailed] = useState(false)
@@ -168,14 +172,13 @@ function SlideVisual({ slide }: { slide: HeroSlide }) {
             loading="eager"
             decoding="async"
             onError={() => setFailed(true)}
-            className="block aspect-square w-full rounded-3xl border border-line object-cover object-left-top"
+            className="block aspect-video w-full rounded-3xl border border-line object-cover object-left-top"
           />
         ) : (
           <LoopVideo
             name="hero"
-            label="Киборг в потоке программного кода"
-            className="aspect-square rounded-3xl border border-line"
-            objectPosition="center 34%"
+            label="Заставка G-NEURO: более 5 лет помогаем в автоматизации процессов"
+            className="aspect-video rounded-3xl border border-line"
           />
         )}
       </div>
