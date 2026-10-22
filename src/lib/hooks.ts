@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 
 /** Уважаем системную настройку: при reduce анимации не проигрываются вовсе. */
 export function usePrefersReducedMotion() {
@@ -44,21 +45,42 @@ export function useInView<T extends HTMLElement>(enabled = true) {
   return { ref, inView }
 }
 
-/** Счётчик от нуля до target с затуханием; запускается по active. */
-export function useCountUp(target: number, active: boolean, durationMs = 1100) {
-  const [value, setValue] = useState(0)
+/**
+ * Счётчик от нуля до target с затуханием; запускается по active.
+ *
+ * `decimals` — сколько знаков после запятой держать: показатели бывают не
+ * только целыми («3,2 ч»), и округление до целого превратило бы их в другое
+ * число.
+ *
+ * При выключенной анимации возвращает конечное значение сразу. Это не
+ * тонкость, а условие: человек, попросивший меньше движения, просил убрать
+ * анимацию, а не цифры — иначе на витрине остались бы нули.
+ */
+export function useCountUp(target: number, active: boolean, { decimals = 0, durationMs = 1100 } = {}) {
+  const reduced = usePrefersReducedMotion()
+  const [value, setValue] = useState(() => (reduced ? target : 0))
+
   useEffect(() => {
     if (!active) return
+    if (reduced) {
+      setValue(target)
+      return
+    }
+
+    const factor = 10 ** decimals
     let raf = 0
     const start = performance.now()
     const tick = (now: number) => {
       const progress = Math.min((now - start) / durationMs, 1)
-      setValue(Math.round(target * (1 - (1 - progress) ** 3)))
+      // easeOutCubic: быстрый разгон и мягкая остановка — счётчик не выглядит
+      // равномерной прокруткой табло.
+      setValue(Math.round(target * (1 - (1 - progress) ** 3) * factor) / factor)
       if (progress < 1) raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [active, target, durationMs])
+  }, [active, target, durationMs, decimals, reduced])
+
   return value
 }
 
@@ -83,7 +105,29 @@ export function useTheme() {
     localStorage.setItem(THEME_KEY, theme)
   }, [theme])
 
-  const toggle = useCallback(() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark')), [])
+  /*
+   * Тема перетекает, а не переключается рывком.
+   *
+   * View Transitions снимают кадр до и после правки и растворяют один в
+   * другой. Глобальный `transition: background-color` сделал бы то же грубее:
+   * он навсегда замедлил бы каждое наведение на странице, а здесь переход
+   * одноразовый и к элементам не относится вовсе.
+   *
+   * flushSync обязателен: startViewTransition снимает первый кадр, вызывает
+   * колбэк и сразу снимает второй. Обычная правка состояния React отложила бы
+   * изменение DOM на после съёмки, и переход честно отработал бы между двумя
+   * одинаковыми кадрами — то есть внешне не произошло бы ничего.
+   */
+  const toggle = useCallback(() => {
+    const flip = () => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
+    const start = document.startViewTransition?.bind(document)
+    if (!start || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      flip()
+      return
+    }
+    start(() => flushSync(flip))
+  }, [])
+
   return { theme, toggle }
 }
 

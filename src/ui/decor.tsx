@@ -31,22 +31,37 @@ export function Logo({ className, name = 'G-NEURO' }: { className?: string; name
   )
 }
 
-/** Мягкое электрическое пятно на фоне — отсвет объектов сцены. */
+/**
+ * Мягкое электрическое пятно на фоне — отсвет объектов сцены.
+ *
+ * `alive` включает очень медленный ход: пятно дышит и слегка смещается при
+ * прокрутке. Без него фон остаётся ровно таким, каким был, — поэтому движение
+ * добавляется по месту, а не всем пятнам разом.
+ */
 export function Bloom({
   className,
   size = 520,
   color = 'var(--electric)',
   opacity = 0.18,
+  alive = false,
+  drift = 'slow',
 }: {
   className?: string
   size?: number
   color?: string
   opacity?: number
+  alive?: boolean
+  /** Направление параллакса: встречное движение добавляет глубины. */
+  drift?: 'slow' | 'counter'
 }) {
   return (
     <div
       aria-hidden="true"
-      className={cn('pointer-events-none absolute rounded-full blur-[110px]', className)}
+      className={cn(
+        'pointer-events-none absolute rounded-full blur-[110px]',
+        alive && (drift === 'counter' ? 'bloom-alive-counter' : 'bloom-alive'),
+        className,
+      )}
       style={{
         width: size,
         height: size,

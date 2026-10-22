@@ -282,6 +282,137 @@
   color: transparent;
 }
 
+/* ------------------------------------------------------------------ */
+/* Движение при прокрутке                                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Параллакс декоративных слоёв — без единого обработчика scroll.
+ *
+ * Браузер ведёт такую анимацию на композиторе: прокрутка не вызывает ни одного
+ * кадра JS и не может залипнуть на слабом телефоне. Обработчик `scroll` + rAF
+ * дал бы тот же результат ценой работы в главном потоке на каждой прокрутке.
+ *
+ * В браузерах без `animation-timeline` (на осень 2026 это прежде всего Firefox)
+ * слой просто стоит на месте. Для пятна света «стоит» и «движется медленно» —
+ * одно и то же состояние, ничего не прячется и не ломается, поэтому запасного
+ * пути на наблюдателе здесь нет намеренно.
+ *
+ * Анимируется `translate`, а не `transform`: пятна уже центрируются
+ * собственным `transform`, и ключевые кадры стёрли бы центрирование.
+ */
+@keyframes drift-up {
+  to {
+    translate: 0 -16%;
+  }
+}
+
+@keyframes drift-down {
+  to {
+    translate: 0 12%;
+  }
+}
+
+@utility parallax-slow {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: drift-up linear both;
+    animation-timeline: view();
+    animation-range: cover;
+  }
+}
+
+@utility parallax-counter {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: drift-down linear both;
+    animation-timeline: view();
+    animation-range: cover;
+  }
+}
+
+/**
+ * Живое пятно: дышит само и сдвигается при прокрутке.
+ *
+ * Обе анимации объявлены одним правилом через запятую. Разными утилитами их
+ * не собрать: вторая переписала бы свойство `animation` целиком, и пятно
+ * получило бы только один из двух эффектов — какой именно, решал бы порядок
+ * правил в собранном CSS.
+ */
+@utility bloom-alive {
+  @media (prefers-reduced-motion: no-preference) {
+    animation:
+      aurora 48s ease-in-out infinite,
+      drift-up linear both;
+    animation-timeline: auto, view();
+    animation-range: normal, cover;
+  }
+}
+
+@utility bloom-alive-counter {
+  @media (prefers-reduced-motion: no-preference) {
+    animation:
+      aurora 61s ease-in-out infinite,
+      drift-down linear both;
+    animation-timeline: auto, view();
+    animation-range: normal, cover;
+  }
+}
+
+/**
+ * Свет, который медленно ходит по разделу.
+ *
+ * Очень длинный период и единицы процентов смещения: движение не должно
+ * читаться как анимация — только как то, что страница живая.
+ */
+@keyframes aurora {
+  0%,
+  100% {
+    translate: 0 0;
+    scale: 1;
+  }
+  50% {
+    translate: 4% -3%;
+    scale: 1.08;
+  }
+}
+
+@theme {
+  --animate-aurora: aurora 48s ease-in-out infinite;
+}
+
+/**
+ * Появление окна заявки.
+ *
+ * `@starting-style` описывает, с чего элемент начинает в момент вставки в
+ * документ. Без него переход некуда отсчитывать: окно просто возникает на
+ * месте — ровно так оно и вело себя до сих пор.
+ *
+ * Уход не анимируется намеренно. Для него пришлось бы держать закрытое окно в
+ * документе и гасить через `display` с `allow-discrete`, то есть вечно иметь
+ * на странице скрытую форму заявки со своими полями и обработчиками. Ради
+ * четверти секунды это плохая сделка: открытие — то, что человек ждёт,
+ * закрытие — то, от чего он уже отвернулся.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .modal-layer {
+    transition: opacity 0.22s ease-out;
+  }
+  .modal-panel {
+    transition:
+      opacity 0.26s ease-out,
+      translate 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @starting-style {
+    .modal-layer {
+      opacity: 0;
+    }
+    .modal-panel {
+      opacity: 0;
+      translate: 0 1.75rem;
+    }
+  }
+}
+
 /*
  * Анимации объявлены темой, а не `@utility`.
  *

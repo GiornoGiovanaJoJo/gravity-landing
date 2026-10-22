@@ -154,12 +154,13 @@ function Carousel({ slides }: { slides: HeroSlide[] }) {
   }, [index, total])
 
   if (total === 0) return null
-  const slide = slides[index]
 
   return (
     <div className="relative">
-      <Bloom className="top-[-18%] right-[-6%]" size={720} opacity={0.2} />
-      <Bloom className="bottom-[-24%] left-[-12%]" size={540} opacity={0.1} />
+      {/* Пятна ходят навстречу друг другу: встречное движение даёт глубину,
+          которой одинаковый сдвиг обоих слоёв не даёт. */}
+      <Bloom className="top-[-18%] right-[-6%]" size={720} opacity={0.2} alive />
+      <Bloom className="bottom-[-24%] left-[-12%]" size={540} opacity={0.1} alive drift="counter" />
 
       <div
         className={cn(SHELL, 'relative flex flex-col justify-center py-20')}
@@ -177,45 +178,67 @@ function Carousel({ slides }: { slides: HeroSlide[] }) {
           go(delta < 0 ? index + 1 : index - 1)
         }}
       >
-        <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
-          {/* key на ключевых узлах: при смене слайда появление должно
-              проигрываться заново, иначе текст меняется рывком. */}
-          <div key={index}>
-            <Reveal>
-              <p className="eyebrow">
-                {String(index + 1).padStart(2, '0')} · {slide.eyebrow}
-              </p>
-            </Reveal>
+        {/*
+          Лента, а не подмена содержимого.
+          Раньше слайд пересоздавался по `key={index}`: новый приходил снизу,
+          а старый исчезал мгновенно — смена читалась скачком, и свайп пальцем
+          ни с чем не был связан. Теперь слайды стоят в ряд и ряд едет, так что
+          движение совпадает с жестом.
+        */}
+        <Reveal className="overflow-hidden">
+          <div
+            className="flex transition-transform duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+            style={{ transform: `translate3d(${-index * 100}%, 0, 0)` }}
+          >
+            {slides.map((item, i) => (
+              <div
+                key={item.title}
+                /*
+                 * Уехавший слайд выводится из обхода целиком. Без этого кнопка
+                 * «Попробовать» за краем экрана остаётся доступной с
+                 * клавиатуры, и фокус уходит в невидимое — `aria-hidden` прячет
+                 * узел от читалки, но не от табуляции, а `inert` делает и то и
+                 * другое.
+                 */
+                inert={i !== index ? true : undefined}
+                className="grid w-full shrink-0 items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16"
+              >
+                {/*
+                  Внутри ленты появления нет намеренно. Соседние слайды стоят
+                  за краем окна, наблюдатель их не видит — и, доехав, они
+                  показывались бы прозрачными, пока он не сработает. Вход
+                  играет сама лента, а мягкое появление всего блока даёт один
+                  Reveal снаружи.
+                */}
+                <div>
+                  <p className="eyebrow">
+                    {String(i + 1).padStart(2, '0')} · {item.eyebrow}
+                  </p>
 
-            <Reveal delayMs={80}>
-              <h2 className="display mt-7 max-w-3xl">{slide.title}</h2>
-            </Reveal>
+                  <h2 className="display mt-7 max-w-3xl">{item.title}</h2>
 
-            <Reveal delayMs={160}>
-              <p className="mt-7 max-w-xl text-[length:var(--text-lead)] leading-relaxed text-fg-muted text-pretty">
-                {slide.text}
-              </p>
-            </Reveal>
+                  <p className="mt-7 max-w-xl text-[length:var(--text-lead)] leading-relaxed text-fg-muted text-pretty">
+                    {item.text}
+                  </p>
 
-            <Reveal delayMs={240}>
-              <div className="mt-10">
-                {slide.href ? (
-                  <LinkButton href={appLink(slide.href)} size="lg" arrow>
-                    {slide.cta}
-                  </LinkButton>
-                ) : (
-                  <Button onClick={openLead} size="lg" arrow>
-                    {slide.cta}
-                  </Button>
-                )}
+                  <div className="mt-10">
+                    {item.href ? (
+                      <LinkButton href={appLink(item.href)} size="lg" arrow>
+                        {item.cta}
+                      </LinkButton>
+                    ) : (
+                      <Button onClick={openLead} size="lg" arrow>
+                        {item.cta}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                <SlideVisual slide={item} />
               </div>
-            </Reveal>
+            ))}
           </div>
-
-          <Reveal delayMs={140}>
-            <SlideVisual key={index} slide={slide} />
-          </Reveal>
-        </div>
+        </Reveal>
 
         {total > 1 && (
           <div className="mt-14 flex items-center gap-5">

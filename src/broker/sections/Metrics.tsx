@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useCountUp, useInView } from '@/lib/hooks'
 import { useBrokerStore } from '../store'
 import { track } from '../tracking'
 import { Card, Reveal, Section, SectionHeading } from '../ui'
@@ -46,7 +47,7 @@ export function Metrics() {
         {m.items.map((item, i) => (
           <Reveal key={item.label} delayMs={i * 60}>
             <Card tint className="h-full p-6">
-              <p className="text-[length:var(--b-metric)] leading-none text-accent">{item.value}</p>
+              <MetricValue value={item.value} />
               <p className="mt-4 text-sm text-fg-muted text-pretty">{item.label}</p>
             </Card>
           </Reveal>
@@ -98,6 +99,35 @@ export function Metrics() {
 
 function ChartTitle({ children }: { children: React.ReactNode }) {
   return <p className="b-caption mb-6">{children}</p>
+}
+
+/**
+ * Показатель, который набирается при появлении в кадре.
+ *
+ * Значения приходят из админки строками — «480», «12%», «3,2 ч», — поэтому
+ * число отделяется от хвоста разбором. Не разобралось — выводим строку как
+ * есть и не анимируем: текст из админки не должен ломаться из-за эффекта.
+ * Эффекта может не быть, цифры — обязаны.
+ */
+function MetricValue({ value }: { value: string }) {
+  const { ref, inView } = useInView<HTMLParagraphElement>()
+  const match = value.match(/^(\d+)(?:[.,](\d+))?(.*)$/)
+
+  const whole = match ? Number(match[1]) : 0
+  const fraction = match?.[2] ?? ''
+  const target = Number(`${whole}.${fraction || 0}`)
+  const counted = useCountUp(target, inView && Boolean(match), { decimals: fraction.length })
+
+  return (
+    <p
+      ref={ref}
+      // Моноширинные цифры: без них карточка дёргается на каждом кадре, пока
+      // меняется ширина знаков.
+      className="text-[length:var(--b-metric)] leading-none text-accent tabular-nums"
+    >
+      {match ? `${counted.toLocaleString('ru-RU')}${match[3]}` : value}
+    </p>
+  )
 }
 
 /**

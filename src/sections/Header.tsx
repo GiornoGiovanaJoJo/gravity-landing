@@ -95,9 +95,29 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
         </div>
       </div>
 
-      {menuOpen && (
-        <div className="border-t border-line bg-bg/95 backdrop-blur-xl lg:hidden">
-          <nav className={cn(SHELL, 'flex flex-col gap-1 py-5')} aria-label="Разделы страницы">
+      {/*
+        Меню разворачивается, а не возникает.
+
+        Сетка с переходом строки из 0fr в 1fr — единственный способ плавно
+        раскрыть блок неизвестной высоты: саму `height: auto` анимировать
+        нельзя, а фиксированная высота разъедется, как только в меню добавят
+        пункт.
+
+        Свёрнутое меню остаётся в документе, поэтому ему нужен `inert`: иначе
+        табуляция уводит фокус в схлопнутую область, где ничего не видно.
+      */}
+      <div
+        className={cn(
+          'grid overflow-hidden border-line bg-bg/95 backdrop-blur-xl transition-[grid-template-rows] duration-300 ease-out lg:hidden',
+          menuOpen ? 'grid-rows-[1fr] border-t' : 'grid-rows-[0fr]',
+        )}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <nav
+            inert={!menuOpen ? true : undefined}
+            className={cn(SHELL, 'flex flex-col gap-1 py-5')}
+            aria-label="Разделы страницы"
+          >
             {content.nav.map((link) => (
               <a
                 key={link.href}
@@ -130,7 +150,7 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
             </div>
           </nav>
         </div>
-      )}
+      </div>
     </header>
   )
 }

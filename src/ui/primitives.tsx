@@ -6,14 +6,35 @@ import { useInView, usePrefersReducedMotion } from '@/lib/hooks'
 /* Появление при скролле                                               */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Как именно появляется блок.
+ *
+ * Разный вход по типу содержимого, а не один на всё: когда полтора десятка
+ * блоков подряд одинаково выезжают на двадцать точек снизу, движение читается
+ * шаблоном страницы, а не её характером.
+ */
+type RevealVariant = 'up' | 'fade' | 'scale'
+
+const REVEAL_HIDDEN: Record<RevealVariant, string> = {
+  // Текст: приходит снизу, как будто дочитываешь до него.
+  up: 'translate-y-5 opacity-0',
+  // Перечни: только проявление. Шесть пунктов, всплывающих по очереди,
+  // выглядят как незагрузившаяся страница.
+  fade: 'opacity-0',
+  // Снимки и карточки: лёгкий наезд, будто предмет кладут на стол.
+  scale: 'scale-[0.97] opacity-0',
+}
+
 export function Reveal({
   children,
   className,
   delayMs = 0,
+  variant = 'up',
 }: {
   children: ReactNode
   className?: string
   delayMs?: number
+  variant?: RevealVariant
 }) {
   const reduced = usePrefersReducedMotion()
   const { ref, inView } = useInView<HTMLDivElement>(!reduced)
@@ -22,8 +43,8 @@ export function Reveal({
       ref={ref}
       style={{ transitionDelay: `${delayMs}ms` }}
       className={cn(
-        'transition-all duration-700 ease-out',
-        inView ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0',
+        'transition-[transform,opacity] duration-700 ease-out',
+        inView ? 'translate-y-0 scale-100 opacity-100' : REVEAL_HIDDEN[variant],
         className,
       )}
     >
@@ -43,8 +64,16 @@ type ButtonVariant = 'primary' | 'outline' | 'ghost'
  * opacity на Deep Iris превращается в грязно-синее пятно, которое читается как
  * сломанная кнопка, а не как недоступная.
  */
+/*
+ * Переходы перечислены поимённо, а не `transition-all`. Со «всем» браузер
+ * ведёт в том числе ширину и высоту, а они у кнопки зависят от содержимого:
+ * каждое наведение тянуло за собой пересчёт раскладки соседей.
+ *
+ * Нажатие отвечает смещением на пиксель и едва заметным сжатием — отклик,
+ * которого ждёшь от физической кнопки и которого здесь не было вовсе.
+ */
 const BUTTON_BASE =
-  'group inline-flex shrink-0 items-center justify-center gap-2.5 rounded-pill border border-transparent text-sm font-semibold transition-all duration-200 disabled:pointer-events-none disabled:border-line disabled:bg-transparent disabled:text-fg-subtle disabled:shadow-none'
+  'group inline-flex shrink-0 items-center justify-center gap-2.5 rounded-pill border border-transparent text-sm font-semibold transition-[background-color,border-color,box-shadow,transform,color] duration-200 ease-out active:translate-y-px active:scale-[0.985] disabled:pointer-events-none disabled:border-line disabled:bg-transparent disabled:text-fg-subtle disabled:shadow-none'
 
 /**
  * Основная кнопка — заливка Electric с тёмным текстом.
@@ -196,7 +225,10 @@ export function Card({
     <div
       className={cn(
         'panel rounded-card',
-        hoverable && 'transition-colors duration-300 hover:border-line-strong',
+        // Карточка приподнимается и отбрасывает тень: на тёмном фоне одна лишь
+        // смена цвета рамки почти не читается как отклик.
+        hoverable &&
+          'transition-[border-color,transform,box-shadow] duration-300 ease-out hover:-translate-y-0.5 hover:border-line-strong hover:shadow-[0_18px_40px_-28px_var(--iris)]',
         className,
       )}
     >
@@ -323,7 +355,7 @@ export function Modal({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-100 flex items-end justify-center p-4 sm:items-center">
+    <div className="modal-layer fixed inset-0 z-100 flex items-end justify-center p-4 sm:items-center">
       <button
         type="button"
         aria-label="Закрыть"
@@ -334,7 +366,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="relative w-full max-w-lg rounded-card border border-line bg-bg-soft p-6 shadow-2xl sm:p-8"
+        className="modal-panel relative w-full max-w-lg rounded-card border border-line bg-bg-soft p-6 shadow-2xl sm:p-8"
       >
         {children}
       </div>

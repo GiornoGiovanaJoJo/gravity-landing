@@ -1,8 +1,7 @@
 import { useId, useState, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
-import { useInView, usePrefersReducedMotion } from '@/lib/hooks'
 import { Icon } from '@/ui/Icon'
-import { SHELL } from '@/ui/primitives'
+import { Reveal, SHELL } from '@/ui/primitives'
 
 /* Колонка общая с главной — секции страницы продукта берут её отсюда, чтобы не
    знать про примитивы другой страницы. */
@@ -21,31 +20,14 @@ export { SHELL }
 /* Появление при скролле                                               */
 /* ------------------------------------------------------------------ */
 
-export function Reveal({
-  children,
-  className,
-  delayMs = 0,
-}: {
-  children: ReactNode
-  className?: string
-  delayMs?: number
-}) {
-  const reduced = usePrefersReducedMotion()
-  const { ref, inView } = useInView<HTMLDivElement>(!reduced)
-  return (
-    <div
-      ref={ref}
-      style={{ transitionDelay: `${delayMs}ms` }}
-      className={cn(
-        'transition-all duration-700 ease-out',
-        inView ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0',
-        className,
-      )}
-    >
-      {children}
-    </div>
-  )
-}
+/*
+ * Появление — общее с главной, в отличие от остальных примитивов.
+ *
+ * Здесь была побайтовая копия, и это не вопрос бренда: то, как блок входит в
+ * кадр, одинаково для любой страницы. Пока копий было две, каждое улучшение
+ * приходилось делать дважды — и однажды оно было бы сделано по-разному.
+ */
+export { Reveal }
 
 /* ------------------------------------------------------------------ */
 /* Кнопки                                                              */
