@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { useScrolled, type ThemeMode } from '@/lib/hooks'
+import { BLOG_ROUTE, siteHref } from '@/lib/routes'
 import { useStore } from '@/lib/store'
 import { Logo } from '@/ui/decor'
 import { Button, LinkButton } from '@/ui/primitives'
@@ -56,6 +57,15 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
               {link.label}
             </a>
           ))}
+          {/* Блог стоит отдельно от списка разделов: те — якоря этой страницы и
+              приходят из админки, а это отдельные страницы сайта, и пропадать
+              вместе с устаревшим списком из CRM они не должны. */}
+          <a
+            href={siteHref(BLOG_ROUTE)}
+            className="rounded-pill px-5 py-2.5 text-sm text-fg-muted transition hover:bg-accent-soft hover:text-fg"
+          >
+            Блог
+          </a>
         </nav>
 
         <div className="flex items-center gap-2">
@@ -100,6 +110,12 @@ export function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleThe
                 {link.label}
               </a>
             ))}
+            <a
+              href={siteHref(BLOG_ROUTE)}
+              className="rounded-xl px-3 py-3 text-sm text-fg-muted transition hover:bg-accent-soft hover:text-fg"
+            >
+              Блог
+            </a>
             <div className="mt-3 grid gap-2">
               <Button
                 onClick={() => {

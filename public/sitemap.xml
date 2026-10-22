@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Правки здесь не доедут до прода: на сборке файл перезаписывается
+  scripts/build-blog.mjs, который добавляет к этому списку статьи блога.
+  Адреса сайта меняются там же, в renderSitemap.
+
+  Файл оставлен ради npm run dev, где сборка не запускается.
+-->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://g-neuro.space/</loc>

@@ -15,12 +15,26 @@
 
 export const BROKER_ROUTE = '/broker'
 
-const SITE_ROUTES: readonly string[] = [BROKER_ROUTE]
+/**
+ * Блог.
+ *
+ * Единственный раздел, который App не рендерит: его страницы собираются в
+ * готовый HTML на сборке (scripts/build-blog.mjs) и лежат в dist отдельными
+ * файлами. Так сделано ради выдачи — статья, которой нет в HTML, для
+ * поисковика не существует, а здесь предрендера нет. Для ссылок разницы
+ * никакой: адрес собирается так же, через базу сборки.
+ *
+ * Со слэшем на конце: без него nginx сперва ответит редиректом на каталог.
+ */
+export const BLOG_ROUTE = '/blog/'
+
+const normalize = (path: string) => path.replace(/\/+$/, '').toLowerCase()
+
+const SITE_ROUTES: readonly string[] = [BROKER_ROUTE, BLOG_ROUTE].map(normalize)
 
 /** Ведёт ли путь на страницу сайта, а не в приложение. */
 export function isSiteRoute(path: string): boolean {
-  const normalized = path.replace(/\/+$/, '').toLowerCase()
-  return SITE_ROUTES.includes(normalized)
+  return SITE_ROUTES.includes(normalize(path))
 }
 
 /**

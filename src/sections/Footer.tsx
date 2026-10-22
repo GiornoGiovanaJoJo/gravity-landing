@@ -1,4 +1,4 @@
-import { BROKER_ROUTE, siteHref } from '@/lib/routes'
+import { BLOG_ROUTE, BROKER_ROUTE, siteHref } from '@/lib/routes'
 import { useStore } from '@/lib/store'
 import { Logo } from '@/ui/decor'
 import { LoopVideo } from '@/ui/LoopVideo'
@@ -73,6 +73,11 @@ export function Footer() {
             <li>
               <a href={siteHref(BROKER_ROUTE)} className="text-sm text-fg-muted transition hover:text-fg">
                 Кабинеты застройщика и брокера
+              </a>
+            </li>
+            <li>
+              <a href={siteHref(BLOG_ROUTE)} className="text-sm text-fg-muted transition hover:text-fg">
+                Блог
               </a>
             </li>
             <li>
