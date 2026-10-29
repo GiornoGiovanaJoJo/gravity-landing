@@ -2,11 +2,26 @@ import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { useStore } from '@/lib/store'
 import { Bloom } from '@/ui/decor'
-import { HeroScene } from '@/ui/HeroScene'
 import { LoopVideo } from '@/ui/LoopVideo'
 import { Button, LinkButton, Reveal, RoundButton, SHELL } from '@/ui/primitives'
 import { Icon } from '@/ui/Icon'
 import type { HeroSlide } from '@/types'
+
+/** Файл заставки из `public/hero`: сайт собирается и отдельным доменом, и
+ *  встроенным в CRM под «/site/», поэтому путь всегда идёт через BASE_URL. */
+const hero = (file: string) => `${import.meta.env.BASE_URL}hero/${file}`
+
+/**
+ * Значок направления — по утверждённому макету заставки, не из общего набора
+ * `ui/Icon`: эти четыре знака нарисованы отдельно и нигде больше не ставятся.
+ * Ключ — то же имя, что лежит в контенте (`HeroHighlight.icon`).
+ */
+const HERO_DIRECTION_ICON: Record<string, string> = {
+  Code: 'icon-web-mobile.svg',
+  Bot: 'icon-robots.svg',
+  Network: 'icon-neural.svg',
+  Layers: 'icon-enterprise.svg',
+}
 
 /**
  * Первый экран: заставка студии, под ней — карусель продуктов.
@@ -27,15 +42,13 @@ export function Hero() {
 }
 
 /**
- * Заставка во всю ширину: векторная сцена, поверх — живой текст.
+ * Заставка во всю ширину: логотип и волны — слои утверждённого растрового
+ * макета, поверх — живой текст.
  *
- * Раскладка одна на все экраны. Пока заголовок был нарисован внутри картинки,
- * телефону приходилось отдавать отдельный блок: во всю ширину вшитая в кадр
- * подпись становилась нечитаемой. Текст, набранный шрифтом, масштабируется сам,
- * и вторая раскладка отпала вместе с ним.
- *
- * По той же причине исчезли доли и проценты: элементы больше не целятся в
- * участки картинки, а просто идут столбцом по центру.
+ * Раскладка одна на все экраны: логотип с волнами держит `.hero-brand` в
+ * `index.css` (ширина в `vw`, волны — в процентах от неё, всегда сходятся на
+ * оси логотипа), а всё, что ниже, идёт столбцом по центру и просто
+ * масштабируется шрифтом.
  */
 function Splash() {
   const { content, appLink, openLead } = useStore()
@@ -52,16 +65,20 @@ function Splash() {
   )
 
   return (
-    <div className="relative isolate">
-      <HeroScene className="absolute inset-0 -z-20 size-full" />
+    <div className="relative isolate overflow-hidden bg-[#050b17]">
+      {/* Свечение за логотипом — из того же макета, что и сами слои. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(ellipse_55%_55%_at_50%_0%,rgba(6,60,140,.42),rgba(6,60,140,.22)_38%,transparent_100%)]"
+      />
 
       {/*
         Тёмное «озеро» под текстом.
 
-        Затемнение живёт здесь, а не внутри сцены, потому что сцена
-        масштабируется под пропорции экрана, а текст — нет: на узком экране
-        крылья сходились ровно там, где идёт подпись, и читать её было нельзя.
-        Слой же всегда накрывает ровно то место, где стоит текст.
+        Волны заходят глубоко под подпись на узких экранах (см. `--tuck` в
+        `.hero-brand`), и без этого слоя читать её по их свету было бы нельзя.
+        Слой всегда накрывает ровно то место, где стоит текст, независимо от
+        того, как далеко в него зашли волны.
       */}
       <span
         aria-hidden="true"
@@ -75,16 +92,15 @@ function Splash() {
         )}
       >
         {/*
-          Единственный заголовок страницы. Раньше он был вшит в пиксели кадра, и
-          рядом приходилось держать скрытую копию — иначе ни поисковик, ни
-          читалка экрана не узнали бы, чей это сайт.
+          Логотип и волны — три отдельных файла макета. `<h1>` стоит здесь, а
+          не отдельной скрытой строкой: подпись вшита в сам файл логотипа, и
+          `alt` на картинке — единственное место, где название читает
+          поисковик и читалка экрана.
         */}
-        {/* Знак набирается из самого названия, а не вписан в разметку: имя
-            компании приходит из контента и может смениться в админке. Первая
-            буква — фирменная «G» градиентом, как на утверждённом кадре. */}
-        <h1 className="hero-title text-[clamp(2.6rem,9vw,7rem)] leading-[0.95] font-light tracking-[-0.015em] text-mist uppercase">
-          <span className="hero-mark">{title.slice(0, 1)}</span>
-          {title.slice(1)}
+        <h1 className="hero-brand">
+          <img className="hero-wave hero-wave--left" src={hero('wave-left.png')} alt="" aria-hidden="true" />
+          <img className="hero-wave hero-wave--right" src={hero('wave-right.png')} alt="" aria-hidden="true" />
+          <img className="hero-brand__logo" src={hero('logo-g-neuro.png')} width={774} height={147} alt={title} />
         </h1>
 
         <p className="mt-7 max-w-2xl text-[length:var(--text-lead)] leading-relaxed text-frost text-pretty">
@@ -111,7 +127,12 @@ function Splash() {
                 index > 0 && 'sm:border-l sm:border-mist/15',
               )}
             >
-              <Icon name={item.icon} className="size-4 shrink-0 text-electric sm:size-5" />
+              <img
+                src={hero(`icons/${HERO_DIRECTION_ICON[item.icon] ?? 'icon-enterprise.svg'}`)}
+                alt=""
+                aria-hidden="true"
+                className="size-8 shrink-0 sm:size-9"
+              />
               <span className="text-xs leading-tight text-mist sm:text-sm">{item.label}</span>
             </li>
           ))}

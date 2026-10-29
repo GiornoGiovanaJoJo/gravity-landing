@@ -218,23 +218,6 @@
 /* Заставка первого экрана                                             */
 /* ------------------------------------------------------------------ */
 
-/**
- * Дыхание крыльев.
- *
- * Ход почти незаметный и очень длинный: крылья держат на себе логотип, и
- * заметное движение превращает первый экран в заставку телевизора. У левого и
- * правого периоды разные — от одинаковых симметрия начинает «хлопать».
- */
-@keyframes wing-drift {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(0, -14px, 0) scale(1.015);
-  }
-}
-
 /** Свечение в центре: медленно набирает и отдаёт яркость. */
 @keyframes core-pulse {
   0%,
@@ -246,40 +229,60 @@
   }
 }
 
-/* Классы, а не Tailwind-утилиты: их носят узлы внутри SVG, собранного в одном
-   компоненте, и держать параметры рядом с кадрами удобнее, чем в разметке. */
-.hero-wing {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: wing-drift 22s ease-in-out infinite;
-}
-.hero-wing-right {
-  animation-duration: 27s;
-  animation-delay: -6s;
-}
 .hero-pulse {
   animation: core-pulse 14s ease-in-out infinite;
 }
 
 /**
- * Заголовок заставки.
+ * Логотип и волны заставки — растровые слои макета.
  *
- * Свечение тенью, а не фильтром: `drop-shadow` на крупном тексте заставляет
- * браузер растрировать слой целиком и на слабых машинах даёт рваную прокрутку,
- * тогда как две мягкие тени рисуются дёшево.
+ * Волны принадлежат логотипу, а не экрану: ширина задана в процентах от
+ * `.hero-brand`, и при любом размере обе сходятся на его оси. `--tuck`
+ * подтягивает их под логотип на узких экранах — иначе на телефоне волны
+ * вываливались бы за край вместе с ним.
  */
-.hero-title {
-  text-shadow:
-    0 0 38px color-mix(in oklab, var(--electric) 45%, transparent),
-    0 0 120px color-mix(in oklab, var(--electric) 25%, transparent);
+.hero-brand {
+  position: relative;
+  width: clamp(16.25rem, 40vw, 87.5rem);
+  --tuck: 0%;
+}
+.hero-brand__logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 0 clamp(8px, 1.4vw, 26px) rgba(42, 123, 245, 0.38));
+}
+.hero-wave {
+  position: absolute;
+  top: 50%;
+  height: auto;
+  z-index: 1;
+  pointer-events: none;
+  user-select: none;
+  transform: translateY(-42.4%);
+}
+.hero-wave--left {
+  right: calc(100% + 0.4% - var(--tuck));
+  width: 74.3%;
+}
+.hero-wave--right {
+  left: calc(100% + 1.3% - var(--tuck));
+  width: 72.1%;
 }
 
-/* Знак студии: та же синяя «G», что и в макете заставки. */
-.hero-mark {
-  background: linear-gradient(145deg, #7fc4ff 0%, var(--electric) 55%, #1b63ad 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+@media (max-width: 1099px) {
+  .hero-brand {
+    width: 56vw;
+    --tuck: 8%;
+  }
+}
+@media (max-width: 699px) {
+  .hero-brand {
+    width: 86vw;
+    --tuck: 24%;
+  }
 }
 
 /* ------------------------------------------------------------------ */
