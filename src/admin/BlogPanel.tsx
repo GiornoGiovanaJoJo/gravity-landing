@@ -127,7 +127,10 @@ function LoginForm({ className, onLoggedIn }: { className?: string; onLoggedIn: 
   return (
     <form onSubmit={submit} className={className}>
       <div className="space-y-3">
-        <Field label="Email" name="email" type="email" value={email} onChange={setEmail} required autoComplete="username" />
+        {/* type="text", не "email": вход допускает служебные логины без
+            «@» (например «administrator»), а сервер их же и проверяет —
+            браузерная валидация формата здесь только мешала бы. */}
+        <Field label="Email или логин" name="email" value={email} onChange={setEmail} required autoComplete="username" />
         <Field
           label="Пароль"
           name="password"
