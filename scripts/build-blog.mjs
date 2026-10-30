@@ -9,23 +9,36 @@
  * HTML, не ищется вообще.
  *
  * Поэтому страницы блога не часть React-приложения: скрипт разворачивает
- * markdown из `content/blog` в самостоятельные документы со своими title,
- * description и микроразметкой. Приложение к ним не подключается — грузить
- * бандл ради текста незачем, да и выдача получает ровно то же, что человек.
+ * посты в самостоятельные документы со своими title, description и
+ * микроразметкой. Приложение к ним не подключается — грузить бандл ради
+ * текста незачем, да и выдача получает ровно то же, что человек.
+ *
+ * Сами посты ведутся не в этом репозитории, а в редакторе блога Gravity RPA
+ * (`/admin` → «Блог», либо `/superadmin?view=blog` внутри самой CRM) — скрипт
+ * забирает их оттуда публичным запросом прямо на этапе сборки, тем же приёмом,
+ * что уже применяется для текстов титульного сайта (только тем во время
+ * визита, а не сборки — у блога статья, которой нет в HTML, не ищется вообще,
+ * поэтому ей нужен предрендер).
  *
  * Запускается последним шагом `npm run build`, потому что берёт из готовой
  * сборки адрес CSS: имя файла содержит хеш и меняется от сборки к сборке.
  */
 
-import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises'
+import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { marked } from 'marked'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
-const CONTENT_DIR = join(root, 'content', 'blog')
 const DIST = join(root, 'dist')
+
+/**
+ * Откуда брать посты. Публичный эндпоинт отдаёт сразу все опубликованные
+ * статьи целиком (без постраничности — блог не настолько большой, чтобы это
+ * имело значение), тем же способом, что и `/api/public/landing`.
+ */
+const BLOG_API_URL = process.env.BLOG_API_URL || 'https://crm.gravityrpa.ru/api/public/blog'
 
 /** Префикс ассетов. Тот же, с которым собирался Vite, иначе ссылки разъедутся. */
 const BASE = process.env.VITE_BASE || '/site/'
@@ -54,36 +67,37 @@ const escapeHtml = (value) =>
 const href = (path) => `${BASE}${String(path).replace(/^\/+/, '')}`
 
 /**
- * Разбор заголовка статьи.
+ * Посты блога из CRM.
  *
- * Полноценный YAML здесь не нужен: в шапке лежат строки и один список тегов, а
- * парсер ради этого тянул бы зависимость в сборку.
+ * Сеть на этапе сборки недоступна не только на фиче-ветках: CRM может быть
+ * недоступна и для прод-деплоя. Сборку это не роняет — страницы блога просто
+ * не появятся в `dist`, ровно как раньше при пустом `content/blog`, а не
+ * ломают весь сайт ради одного раздела.
  */
-function parseFrontmatter(raw, file) {
-  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/)
-  if (!match) throw new Error(`${file}: нет шапки --- в начале файла`)
-
-  const meta = {}
-  for (const line of match[1].split(/\r?\n/)) {
-    if (!line.trim()) continue
-    const pair = line.match(/^([a-zA-Z]+):\s*(.*)$/)
-    if (!pair) throw new Error(`${file}: не разобрана строка шапки «${line}»`)
-
-    const [, key, value] = pair
-    meta[key] = value.startsWith('[')
-      ? value
-          .slice(1, -1)
-          .split(',')
-          .map((item) => item.trim())
-          .filter(Boolean)
-      : value.replace(/^['"]|['"]$/g, '')
+async function fetchPosts() {
+  let res
+  try {
+    res = await fetch(BLOG_API_URL)
+  } catch (e) {
+    console.warn(`build-blog: CRM недоступна (${e.message}) — страницы блога не собираются`)
+    return []
+  }
+  if (!res.ok) {
+    console.warn(`build-blog: ${BLOG_API_URL} ответил ${res.status} — страницы блога не собираются`)
+    return []
   }
 
-  for (const required of ['title', 'description', 'date']) {
-    if (!meta[required]) throw new Error(`${file}: в шапке нет поля ${required}`)
+  const raw = await res.json()
+  if (!Array.isArray(raw)) {
+    console.warn('build-blog: неожиданный ответ CRM — страницы блога не собираются')
+    return []
   }
 
-  return { meta, body: match[2] }
+  return raw.map((post) => ({
+    slug: post.slug,
+    meta: { title: post.title, description: post.description, date: post.publishedAt, tags: post.tags ?? [] },
+    body: post.body,
+  }))
 }
 
 /** «22 октября 2026» — без «г.», которое locale добавляет сам. */
@@ -336,29 +350,19 @@ function renderSitemap(posts) {
 }
 
 async function main() {
-  if (!existsSync(CONTENT_DIR)) {
-    console.log('build-blog: каталога content/blog нет — пропускаем')
-    return
-  }
   if (!existsSync(DIST)) {
     throw new Error('build-blog: нет каталога dist — запускать после vite build')
   }
 
   indexHtml = await readFile(join(DIST, 'index.html'), 'utf8')
 
-  const files = (await readdir(CONTENT_DIR)).filter((name) => name.endsWith('.md'))
-  const posts = []
-
-  for (const file of files) {
-    const raw = await readFile(join(CONTENT_DIR, file), 'utf8')
-    const { meta, body } = parseFrontmatter(raw, file)
-    posts.push({
-      slug: file.replace(/\.md$/, ''),
-      meta,
-      html: renderMarkdown(body),
-      minutes: readingTime(body),
-    })
-  }
+  const fetched = await fetchPosts()
+  const posts = fetched.map((post) => ({
+    slug: post.slug,
+    meta: post.meta,
+    html: renderMarkdown(post.body),
+    minutes: readingTime(post.body),
+  }))
 
   // Свежие сверху: список читают сверху вниз, и старая статья первой строкой
   // выглядит как заброшенный блог.

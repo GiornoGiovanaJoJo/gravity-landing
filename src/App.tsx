@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { fetchBranding } from '@/lib/api'
 import { useTheme, type ThemeMode } from '@/lib/hooks'
-import { BROKER_ROUTE, matchesRoute } from '@/lib/routes'
+import { ADMIN_ROUTE, BROKER_ROUTE, matchesRoute } from '@/lib/routes'
 import { useStore } from '@/lib/store'
 import { Header } from '@/sections/Header'
 import { Hero } from '@/sections/Hero'
@@ -13,6 +13,7 @@ import { Letters } from '@/sections/Letters'
 import { Lead, LeadModal } from '@/sections/Lead'
 import { Footer } from '@/sections/Footer'
 import { BrokerPage } from '@/broker/BrokerPage'
+import { AdminPage } from '@/admin/AdminPage'
 import type { SectionId } from '@/types'
 
 function LandingPage({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme: () => void }) {
@@ -73,6 +74,10 @@ export default function App() {
    */
   if (matchesRoute(window.location.pathname, BROKER_ROUTE)) {
     return <BrokerPage theme={theme} onToggleTheme={toggle} />
+  }
+
+  if (matchesRoute(window.location.pathname, ADMIN_ROUTE)) {
+    return <AdminPage />
   }
 
   return <LandingPage theme={theme} onToggleTheme={toggle} />

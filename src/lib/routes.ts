@@ -16,6 +16,16 @@
 export const BROKER_ROUTE = '/broker'
 
 /**
+ * Админка сайта: тексты и материалы (ссылка в уже существующий редактор в
+ * Gravity RPA) и свой редактор блога.
+ *
+ * Тот же механизм, что у /broker: доступен что на корне домена, что во
+ * встроенной сборке (`.../site/admin`) — matchesRoute сравнивает только хвост
+ * пути, а не весь адрес.
+ */
+export const ADMIN_ROUTE = '/admin'
+
+/**
  * Блог.
  *
  * Единственный раздел, который App не рендерит: его страницы собираются в
@@ -30,7 +40,7 @@ export const BLOG_ROUTE = '/blog/'
 
 const normalize = (path: string) => path.replace(/\/+$/, '').toLowerCase()
 
-const SITE_ROUTES: readonly string[] = [BROKER_ROUTE, BLOG_ROUTE].map(normalize)
+const SITE_ROUTES: readonly string[] = [BROKER_ROUTE, BLOG_ROUTE, ADMIN_ROUTE].map(normalize)
 
 /** Ведёт ли путь на страницу сайта, а не в приложение. */
 export function isSiteRoute(path: string): boolean {
