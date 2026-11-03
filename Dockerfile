@@ -32,18 +32,29 @@ RUN npm run build
 FROM nginx:alpine AS runtime
 
 # ca-certificates — проверка сертификата crm.gravityrpa.ru при proxy_pass;
-# curl — для HEALTHCHECK.
-RUN apk add --no-cache ca-certificates curl
+# curl — для HEALTHCHECK; nodejs — для blog-server.mjs (рендерит /blog/* на
+# лету, см. deploy/start.sh): блог должен показывать статью сразу после
+# публикации в CRM, а не после следующего передеплоя сайта.
+RUN apk add --no-cache ca-certificates curl nodejs
 
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
+COPY deploy/start.sh /start.sh
 COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/server /app/server
+COPY --from=build /app/node_modules/marked /app/node_modules/marked
+
+ENV DIST_DIR=/usr/share/nginx/html \
+    BLOG_SERVER_PORT=8787 \
+    BLOG_API_URL=https://crm.gravityrpa.ru/api/public/blog \
+    SITE_URL=https://g-neuro.space \
+    VITE_BASE=/
 
 # Каталог кэша ответов CRM (см. proxy_cache_path). nginx -t на этапе сборки:
 # ошибка в конфиге валит CI, а не прод.
-RUN mkdir -p /var/cache/nginx/crm && nginx -t
+RUN mkdir -p /var/cache/nginx/crm && chmod +x /start.sh && nginx -t
 
 EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -fsS http://127.0.0.1/healthz || exit 1
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/start.sh"]

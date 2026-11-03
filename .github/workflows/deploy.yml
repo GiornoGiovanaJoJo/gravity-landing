@@ -62,11 +62,10 @@ jobs:
           # Проверяем сам номер — URL скрипта лежит в бандле строкой всегда,
           # даже когда переменная пуста и счётчик не поднимается.
           grep -qF '113678401' _dist/assets/*.js
-          # Блог собирается отдельным шагом сборки, и его отсутствие ничего не
-          # ломает — страницы просто пропадают из выдачи вместе со ссылками на
-          # них из шапки. Поэтому проверяем, что статьи доехали до образа.
-          test -f _dist/blog/index.html
-          grep -q '<loc>.*/blog/' _dist/sitemap.xml
+          # Блог теперь не файлы в образе, а blog-server.mjs внутри контейнера
+          # (рендерит на лету из CRM) — его наличие и работоспособность
+          # проверяет отдельно шаг "Smoke test" после запуска контейнера,
+          # здесь проверять нечего.
 
       - name: Export image
         run: |
@@ -118,7 +117,17 @@ jobs:
             [ \"\$code\" = '200' ] || { echo \"healthz вернул \$code\"; docker logs gravity-landing --tail 50; exit 1; }
             curl -fsS http://127.0.0.1/ | grep -q 'id=\"root\"'
             echo 'страница отдаётся'
-            curl -sS -o /dev/null -w 'proxy /api/health: %{http_code}\n' --max-time 15 http://127.0.0.1/api/health"
+            curl -sS -o /dev/null -w 'proxy /api/health: %{http_code}\n' --max-time 15 http://127.0.0.1/api/health
+            # blog-server стартует вторым процессом в контейнере и на первый
+            # запрос синхронно тянет посты из CRM — даём ему больше попыток,
+            # чем healthz.
+            for i in \$(seq 1 10); do
+              bcode=\$(curl -s -o /dev/null -w '%{http_code}' --max-time 8 http://127.0.0.1/blog/ || true)
+              [ \"\$bcode\" = '200' ] && break
+              sleep 2
+            done
+            [ \"\$bcode\" = '200' ] || { echo \"/blog/ вернул \$bcode\"; docker logs gravity-landing --tail 50; exit 1; }
+            echo 'блог отдаётся'"
 
       - name: Внешняя проверка (справочно)
         # Не роняет деплой: раннер GitHub может не иметь доступа к адресу VPS.

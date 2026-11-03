@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Правки здесь не доедут до прода: на сборке файл перезаписывается
-  scripts/build-blog.mjs, который добавляет к этому списку статьи блога.
-  Адреса сайта меняются там же, в renderSitemap.
+  Правки здесь не доедут до прода: там /sitemap.xml отдаёт blog-server
+  (server/blog-server.mjs → renderSitemap в server/blog-render.mjs), живьём,
+  со списком статей из CRM. Адреса сайта меняются там же.
 
-  Файл оставлен ради npm run dev, где сборка не запускается.
+  Файл оставлен ради npm run dev, где blog-server не поднимается.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
